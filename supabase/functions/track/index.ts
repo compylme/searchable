@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js"
 import type { BotClassification, TrackingPayload } from "./types/index.ts"
 import { BOT_DEFINITIONS } from "./definitions/bots.ts"
+import { jsonResponse, RequestValidationError, requireEnvironmentVariable } from "./utils/index.ts"
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
