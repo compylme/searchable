@@ -1,11 +1,14 @@
 import type { BotClassification } from "../types/index.ts"
 import { BOT_DEFINITIONS } from "../definitions/bots.ts"
 
-export function classifyCrawler(userAgent: string): BotClassification {
-  const normalizedUserAgent = userAgent.toLowerCase();
+const COMPILED_DEFINITIONS = BOT_DEFINITIONS.map((def) => ({
+  ...def,
+  pattern: new RegExp(def.userAgentPattern, "i"),
+}));
 
-  const match = BOT_DEFINITIONS.find(({ userAgentPattern }) =>
-    normalizedUserAgent.includes(userAgentPattern)
+export function classifyCrawler(userAgent: string): BotClassification {
+  const match = COMPILED_DEFINITIONS.find(({ pattern }) =>
+    pattern.test(userAgent)
   );
 
   if (!match) {
