@@ -4,7 +4,7 @@ export type TrackingPayload = {
   timestamp?: string;
 };
 
-export type BotType = "training" | "search" | "assistant" | "dataset";
+export type BotType = "training" | "search" | "assistant" | "dataset" | "unknown";
 
 export type BotDefinition = {
   userAgentPattern: string;
