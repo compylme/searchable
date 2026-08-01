@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js"
-import type { BotClassification, TrackingPayload } from "./types/index.ts"
-import { BOT_DEFINITIONS } from "./definitions/bots.ts"
 import { jsonResponse, RequestValidationError, requireEnvironmentVariable } from "./utils/index.ts"
+import { parsePayload, validatePayload } from "./validation/payload.ts"
+import { classifyCrawler } from "./classification/index.ts"
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -83,55 +83,3 @@ Deno.serve(async (request: Request) => {
     return jsonResponse({ error: "Internal server error" }, 500);
   }
 });
-
-async function parsePayload(request: Request): Promise<TrackingPayload> {
-  try {
-    return await request.json();
-  } catch {
-    throw new RequestValidationError("Request body must be valid JSON")
-  }
-}
-
-function validatePayload(
-  payload: TrackingPayload,
-): asserts payload is TrackingPayload{
-  if (!payload || typeof payload !== "object") {
-    throw new RequestValidationError("Invalid request body")
-  }
-
-  if (!payload.site_id || typeof payload.site_id !== "string") {
-    throw new RequestValidationError("site_id is required");
-  }
-
-  if (!payload.page_url || typeof payload.page_url !== "string") {
-    throw new RequestValidationError("page_url is required");
-  }
-
-  try {
-    new URL(payload.page_url);
-  } catch {
-    throw new RequestValidationError("page_url must be a valid URL")
-  }
-}
-
-function classifyCrawler(userAgent: string): BotClassification {
-  const normalizedUserAgent = userAgent.toLowerCase();
-
-  const match = BOT_DEFINITIONS.find(({ userAgentPattern }) =>
-    normalizedUserAgent.includes(userAgentPattern)
-  );
-
-  if (!match) {
-    return {
-      bot_name: null,
-      platform: null,
-      bot_type: "unknown",
-    };
-  }
-
-  return {
-    bot_name: match.botName,
-    platform: match.platform,
-    bot_type: match.botType,
-  };
-}
