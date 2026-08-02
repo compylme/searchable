@@ -1,13 +1,7 @@
 import { createClient } from "@supabase/supabase-js"
-import { jsonResponse, RequestValidationError, requireEnvironmentVariable } from "./utils/index.ts"
+import { corsHeaders, jsonResponse, RequestValidationError, requireEnvironmentVariable } from "./utils/index.ts"
 import { parsePayload, validatePayload } from "./validation/payload.ts"
 import { classifyCrawler } from "./classification/index.ts"
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "content-type, apikey",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-}
 
 Deno.serve(async (request: Request) => {
   if (request.method === "OPTIONS"){

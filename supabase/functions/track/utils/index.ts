@@ -1,3 +1,9 @@
+export const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "content-type, apikey",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
+
 export class RequestValidationError extends Error {
   constructor(message: string) {
     super(message);
