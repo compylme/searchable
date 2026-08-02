@@ -22,7 +22,7 @@ Deno.serve(async (request: Request) => {
 
     validatePayload(payload);
 
-    const userAgent = request.headers.get("user-agent") ?? "unknown";
+    const userAgent = (request.headers.get("user-agent") ?? "unknown").slice(0, 500);
 
     const classification = classifyCrawler(userAgent)
     const pageUrl = new URL(payload.page_url);
