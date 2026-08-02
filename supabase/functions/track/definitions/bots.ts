@@ -51,7 +51,7 @@ export const BOT_DEFINITIONS: BotDefinition[] = [
     purpose: "AI training",
   },
   {
-    userAgentPattern: "applebot[_-]?(extended)?",
+    userAgentPattern: "applebot[_-]extended",
     botName: "Applebot-Extended",
     platform: "Apple",
     botType: "assistant",
