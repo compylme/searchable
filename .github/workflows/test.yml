@@ -23,6 +23,9 @@ jobs:
         with:
           version: latest
 
+      - name: Install Deno dependencies
+        run: deno install
+
       - name: Start Supabase local stack
         run: supabase start
 
