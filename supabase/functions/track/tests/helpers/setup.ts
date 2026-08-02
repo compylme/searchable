@@ -106,32 +106,35 @@ export async function clearCrawlerEvents(): Promise<void> {
   }
 }
 
-export async function teardown(): Promise<void> {
+export async function teardown(seed: SeedResult): Promise<void> {
   const client = getTestClient();
 
-  await clearCrawlerEvents();
+  const { error: eventsError } = await client
+    .from("crawler_events")
+    .delete()
+    .eq("site_id", seed.siteId);
+  if (eventsError) {
+    throw new Error(
+      `Failed to clear crawler_events for site ${seed.siteId}: ${eventsError.message}`,
+    );
+  }
 
-  const { error: sitesError } = await client.from("sites").delete().neq(
-    "id",
-    "00000000-0000-0000-0000-000000000000",
-  );
+  const { error: sitesError } = await client
+    .from("sites")
+    .delete()
+    .eq("id", seed.siteId);
   if (sitesError) {
-    throw new Error(`Failed to clear sites: ${sitesError.message}`);
+    throw new Error(
+      `Failed to delete test site ${seed.siteId}: ${sitesError.message}`,
+    );
   }
 
-  const { data, error: listError } = await client.auth.admin.listUsers();
-  if (listError) {
-    throw new Error(`Failed to list users during teardown: ${listError.message}`);
+  const { error: userError } = await client.auth.admin.deleteUser(seed.userId);
+  if (userError) {
+    throw new Error(
+      `Failed to delete test user ${seed.userId}: ${userError.message}`,
+    );
   }
-
-  await Promise.all(
-    data.users.map(async (user) => {
-      const { error } = await client.auth.admin.deleteUser(user.id);
-      if (error) {
-        throw new Error(`Failed to delete user ${user.id}: ${error.message}`);
-      }
-    }),
-  );
 }
 
 export async function countCrawlerEvents(siteId?: string): Promise<number> {

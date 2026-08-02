@@ -93,6 +93,6 @@ Deno.test({
       assertEquals(response.headers.get("Content-Type"), "application/json");
     });
 
-    await teardown();
+    await teardown(seedData);
   },
 });

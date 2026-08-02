@@ -222,6 +222,6 @@ Deno.test({
       },
     );
 
-    await teardown();
+    await teardown(seedData);
   },
 });
