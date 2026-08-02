@@ -1,11 +1,13 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 export function SignOutButton() {
   const router = useRouter();
+  const t = useTranslations("SignOut");
   const [loading, setLoading] = useState(false);
 
   async function handleSignOut() {
@@ -23,7 +25,7 @@ export function SignOutButton() {
       disabled={loading}
       className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
     >
-      {loading ? "Signing out…" : "Sign out"}
+      {loading ? t("signingOut") : t("label")}
     </button>
   );
 }

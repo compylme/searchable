@@ -2,12 +2,14 @@
 
 import { SubmitEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 
 type Mode = "signin" | "signup";
 
 export default function LoginPage() {
   const router = useRouter();
+  const t = useTranslations("Login");
   const [mode, setMode] = useState<Mode>("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,7 +27,7 @@ export default function LoginPage() {
     try {
       if (mode === "signup") {
         if (password !== confirmPassword) {
-          setError("Passwords do not match.");
+          setError(t("passwordMismatch"));
           return;
         }
 
@@ -68,12 +70,10 @@ export default function LoginPage() {
       <div className="w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
         <div className="mb-8 text-center">
           <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
-            {mode === "signin" ? "Sign in" : "Create an account"}
+            {mode === "signin" ? t("signInTitle") : t("signUpTitle")}
           </h1>
           <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-            {mode === "signin"
-              ? "Welcome back to Searchable"
-              : "Get started with Searchable"}
+            {mode === "signin" ? t("signInSubtitle") : t("signUpSubtitle")}
           </p>
         </div>
 
@@ -83,7 +83,7 @@ export default function LoginPage() {
               htmlFor="email"
               className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
             >
-              Email
+              {t("emailLabel")}
             </label>
             <input
               id="email"
@@ -93,7 +93,7 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-zinc-500 focus:ring-2 focus:ring-zinc-200 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50 dark:focus:border-zinc-500 dark:focus:ring-zinc-800"
-              placeholder="you@example.com"
+              placeholder={t("emailPlaceholder")}
             />
           </div>
 
@@ -102,7 +102,7 @@ export default function LoginPage() {
               htmlFor="password"
               className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
             >
-              Password
+              {t("passwordLabel")}
             </label>
             <input
               id="password"
@@ -115,7 +115,7 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-zinc-500 focus:ring-2 focus:ring-zinc-200 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50 dark:focus:border-zinc-500 dark:focus:ring-zinc-800"
-              placeholder="••••••••"
+              placeholder={t("passwordPlaceholder")}
             />
           </div>
 
@@ -125,7 +125,7 @@ export default function LoginPage() {
                 htmlFor="confirmPassword"
                 className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
               >
-                Confirm password
+                {t("confirmPasswordLabel")}
               </label>
               <input
                 id="confirmPassword"
@@ -136,7 +136,7 @@ export default function LoginPage() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-zinc-500 focus:ring-2 focus:ring-zinc-200 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50 dark:focus:border-zinc-500 dark:focus:ring-zinc-800"
-                placeholder="••••••••"
+                placeholder={t("passwordPlaceholder")}
               />
             </div>
           )}
@@ -156,34 +156,34 @@ export default function LoginPage() {
             className="w-full rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200"
           >
             {loading
-              ? "Please wait…"
+              ? t("submitting")
               : mode === "signin"
-                ? "Sign in"
-                : "Sign up"}
+                ? t("signIn")
+                : t("signUp")}
           </button>
         </form>
 
         <p className="mt-6 text-center text-sm text-zinc-500 dark:text-zinc-400">
           {mode === "signin" ? (
             <>
-              Don&apos;t have an account?{" "}
+              {t("noAccount")}{" "}
               <button
                 type="button"
                 onClick={() => switchMode("signup")}
                 className="font-medium text-zinc-900 underline-offset-4 hover:underline dark:text-zinc-50"
               >
-                Sign up
+                {t("signUp")}
               </button>
             </>
           ) : (
             <>
-              Already have an account?{" "}
+              {t("hasAccount")}{" "}
               <button
                 type="button"
                 onClick={() => switchMode("signin")}
                 className="font-medium text-zinc-900 underline-offset-4 hover:underline dark:text-zinc-50"
               >
-                Sign in
+                {t("signIn")}
               </button>
             </>
           )}

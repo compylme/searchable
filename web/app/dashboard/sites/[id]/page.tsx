@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 
 type SiteActivityPageProps = {
@@ -29,6 +30,8 @@ export default async function SiteActivityPage({
     notFound();
   }
 
+  const t = await getTranslations("SiteActivity");
+
   return (
     <main className="flex flex-1 flex-col px-4 py-12">
       <div className="mx-auto w-full max-w-3xl">
@@ -36,7 +39,7 @@ export default async function SiteActivityPage({
           href="/dashboard"
           className="text-sm font-medium text-zinc-500 underline-offset-4 hover:text-zinc-900 hover:underline dark:text-zinc-400 dark:hover:text-zinc-50"
         >
-          ← Back to dashboard
+          {t("backToDashboard")}
         </Link>
 
         <div className="mt-6">
@@ -50,7 +53,7 @@ export default async function SiteActivityPage({
 
         <div className="mt-8 rounded-2xl border border-zinc-200 bg-white p-8 text-center shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            Activity for this site will appear here.
+            {t("placeholder")}
           </p>
         </div>
       </div>
