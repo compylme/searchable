@@ -1,0 +1,62 @@
+{
+  "Metadata": {
+    "title": "Searchable",
+    "description": "Track AI crawler visits to your websites"
+  },
+  "HomePage": {
+    "title": "Searchable",
+    "subtitle": "Track AI crawler visits to your websites. Sign in to manage your sites and view analytics.",
+    "cta": "Get Started"
+  },
+  "Login": {
+    "signInTitle": "Sign in",
+    "signUpTitle": "Create an account",
+    "signInSubtitle": "Welcome back to Searchable",
+    "signUpSubtitle": "Get started with Searchable",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "confirmPasswordLabel": "Confirm password",
+    "emailPlaceholder": "you@example.com",
+    "passwordPlaceholder": "••••••••",
+    "passwordMismatch": "Passwords do not match.",
+    "submitting": "Please wait…",
+    "signIn": "Sign in",
+    "signUp": "Sign up",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?"
+  },
+  "Dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Manage your tracked sites",
+    "profile": "Profile",
+    "email": "Email",
+    "userId": "User ID",
+    "createdAt": "Created at",
+    "emptyDate": "—"
+  },
+  "SignOut": {
+    "label": "Sign out",
+    "signingOut": "Signing out…"
+  },
+  "SitesList": {
+    "title": "Sites",
+    "siteName": "Site name",
+    "trackingId": "Tracking ID",
+    "created": "Created",
+    "activity": "Activity",
+    "empty": "No sites yet. Add your first site below.",
+    "viewActivity": "View activity",
+    "domainLabel": "Domain",
+    "domainPlaceholder": "example.com",
+    "creating": "Creating…",
+    "createSite": "Create site",
+    "cancel": "Cancel",
+    "addSite": "+ Add a new site",
+    "enterDomain": "Enter a domain.",
+    "duplicateDomain": "You already have a site with that domain."
+  },
+  "SiteActivity": {
+    "backToDashboard": "← Back to dashboard",
+    "placeholder": "Activity for this site will appear here."
+  }
+}
