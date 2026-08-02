@@ -23,7 +23,7 @@ create table public.crawler_events(
     ip_hash varchar(64),
 
     constraint valid_bot_type check (
-        bot_type in ('training', 'search', 'assistant', 'unknown')
+        bot_type in ('training', 'search', 'assistant', 'dataset', 'unknown')
     )
 );
 
