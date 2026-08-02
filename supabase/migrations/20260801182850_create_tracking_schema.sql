@@ -58,3 +58,11 @@ using (
         and sites.user_id = auth.uid()
     )
 );
+
+-- Grants for service_role (used by edge functions)
+grant all on public.crawler_events to service_role;
+grant all on public.sites to service_role;
+
+-- Grants for authenticated users (used by dashboard)
+grant select, insert on public.sites to authenticated;
+grant select on public.crawler_events to authenticated;
