@@ -1,0 +1,52 @@
+name: Tests
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Install Deno dependencies
+        run: deno install
+
+      - name: Start Supabase local stack
+        run: supabase start
+
+      - name: Run unit tests
+        run: deno task test:unit
+
+      - name: Run integration tests
+        run: |
+          eval "$(supabase status -o env)"
+          export SUPABASE_URL="${API_URL}"
+          export SUPABASE_SERVICE_ROLE_KEY="${SERVICE_ROLE_KEY}"
+          deno task test:integration
+
+      - name: Run e2e tests
+        run: |
+          eval "$(supabase status -o env)"
+          export SUPABASE_URL="${API_URL}"
+          export SUPABASE_SERVICE_ROLE_KEY="${SERVICE_ROLE_KEY}"
+          # Local stack already serves functions; warm-up is handled in test helpers.
+          deno task test:e2e
+
+      - name: Stop Supabase local stack
+        if: always()
+        run: supabase stop

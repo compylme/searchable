@@ -1,4 +1,10 @@
 {
+  "scripts": {
+    "test": "deno task test",
+    "test:unit": "deno task test:unit",
+    "test:integration": "deno task test:integration",
+    "test:e2e": "deno task test:e2e"
+  },
   "dependencies": {
     "@supabase/supabase-js": "^2.111.0"
   },
