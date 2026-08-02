@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { SignOutButton } from "./sign-out-button";
+import { SitesList, type Site } from "./sites-list";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -12,16 +13,21 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
+  const { data: sites } = await supabase
+    .from("sites")
+    .select("id, domain, created_at")
+    .order("created_at", { ascending: true });
+
   return (
     <main className="flex flex-1 flex-col px-4 py-12">
-      <div className="mx-auto w-full max-w-2xl">
-        <div className="mb-8 flex items-center justify-between">
+      <div className="mx-auto w-full max-w-4xl space-y-8">
+        <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
               Dashboard
             </h1>
             <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-              Your Searchable profile
+              Manage your tracked sites
             </p>
           </div>
           <SignOutButton />
@@ -31,7 +37,7 @@ export default async function DashboardPage() {
           <h2 className="mb-4 text-sm font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
             Profile
           </h2>
-          <dl className="space-y-4">
+          <dl className="grid gap-4 sm:grid-cols-3">
             <div>
               <dt className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
                 Email
@@ -44,7 +50,7 @@ export default async function DashboardPage() {
               <dt className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
                 User ID
               </dt>
-              <dd className="mt-1 font-mono text-sm text-zinc-900 dark:text-zinc-50">
+              <dd className="mt-1 truncate font-mono text-sm text-zinc-900 dark:text-zinc-50">
                 {user.id}
               </dd>
             </div>
@@ -60,6 +66,11 @@ export default async function DashboardPage() {
             </div>
           </dl>
         </div>
+
+        <SitesList
+          initialSites={(sites ?? []) as Site[]}
+          userId={user.id}
+        />
       </div>
     </main>
   );
