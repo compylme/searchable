@@ -11,7 +11,7 @@
     };
   
     navigator.sendBeacon(
-      "https://YOUR_PROJECT.supabase.co/functions/v1/track",
+      "http://127.0.0.1:54321/functions/v1/track",
       new Blob([JSON.stringify(payload)], {
         type: "application/json",
       }),
