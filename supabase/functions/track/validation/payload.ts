@@ -20,6 +20,11 @@ export function validatePayload(
     throw new RequestValidationError("site_id is required");
   }
 
+  const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!uuidPattern.test(payload.site_id)) {
+    throw new RequestValidationError("site_id must be a valid UUID");
+  }
+
   if (!payload.page_url || typeof payload.page_url !== "string") {
     throw new RequestValidationError("page_url is required");
   }
