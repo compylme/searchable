@@ -23,7 +23,6 @@
     "recharts": "^3.10.1"
   },
   "devDependencies": {
-    "@playwright/test": "^1.62.1",
     "@swc/helpers": "^0.5.23",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^7.0.0",
@@ -37,7 +36,6 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.12",
     "happy-dom": "^20.11.1",
-    "serve": "^14.2.6",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.1.10"

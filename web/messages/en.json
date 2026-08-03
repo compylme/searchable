@@ -42,7 +42,7 @@
     "step3": "Paste the script snippet into your site’s HTML just before the closing '</body>' tag, replacing YOUR_TRACKING_ID with your Tracking ID.",
     "step4": "Deploy your site. When AI crawlers visit, activity will appear on that site’s Activity page.",
     "snippetLabel": "Script snippet",
-    "snippetHint": "Host tracker.js where your site can load it, and keep data-site-id set to your Tracking ID."
+    "snippetHint": "Keep data-site-id set to your Tracking ID. data-endpoint points at the Searchable track API."
   },
   "SignOut": {
     "label": "Sign out",

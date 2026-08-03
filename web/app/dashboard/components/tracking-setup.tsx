@@ -6,8 +6,9 @@ import { ChevronDown, ChevronRight, CircleHelp } from "lucide-react";
 
 const SNIPPET = `<script
   defer
-  src="/tracker.js"
+  src="https://ai-crawler-tracker.vercel.app/tracker.js"
   data-site-id="YOUR_TRACKING_ID"
+  data-endpoint="https://trkaijnxdulrvtgcvddn.supabase.co/functions/v1/track"
 ></script>`;
 
 export function TrackingSetup() {
