@@ -36,3 +36,19 @@ These approaches would improve coverage, but they introduce additional setup, pl
 Supporting server-side tracking would likely require a more involved customer onboarding process. Unlike the JavaScript tracker, which can be added with a single script tag, server-side integrations may depend on the customer’s framework, hosting provider, reverse proxy, or CDN configuration.
 
 A V2 onboarding flow could therefore include platform-specific setup guides, generated configuration examples, integration validation, and troubleshooting support. For more complex environments, assisted onboarding may also be appropriate to help customers implement and verify the integration correctly.
+
+
+## Automated E2E tests
+
+I initially explored a broader automated E2E setup, but reduced it to prioritise the core acceptance criteria and a manually verified live end-to-end flow. The final submission focuses on bot classification, ingestion, dashboard analytics, filtering, and CSV export.
+
+A future version could restore the automated tests to provide comprehensive coverage of the core functionality, user flows, and error scenarios. These tests could be implemented using a framework such as Playwright, Cypress, or TestCafe, with browser-based test suites running in headless or headed modes.
+
+The test suite could include:
+
+* End-to-end browser tests covering the core user flows (site creation, bot detection, activity charting, filtering, CSV export)
+* Performance tests with varying payload sizes and concurrency levels
+* Error handling tests for validation failures, rate limiting, and temporary downstream failures
+* Edge case tests for empty states, large datasets, and edge user agents
+* Visual regression tests for layout and styling changes
+* Accessibility tests for keyboard navigation and screen reader support
