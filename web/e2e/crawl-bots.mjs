@@ -5,7 +5,7 @@
  * spoofed AI crawler User-Agent, hits Home + About (tracker fires on load),
  * then opens the dashboard so you can inspect the new events.
  *
- * Prereqs:
+ * Local prereqs (default):
  *   - `supabase start` (track endpoint at http://127.0.0.1:54321)
  *   - `npm run dev` in another terminal (dashboard at http://localhost:3000)
  *   - seed data present (demo@searchable.dev / demo-password-123)
@@ -14,6 +14,7 @@
  *   npm run crawl:bots
  *   npm run crawl:bots -- --bots=GPTBot,ClaudeBot
  *   npm run crawl:bots -- --keep-open
+ *   npm run crawl:bots -- --prod --site-id=<uuid>
  */
 
 import { chromium } from "@playwright/test";
@@ -23,15 +24,17 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const repoRoot = path.resolve(__dirname, "../..");
 const testSiteDir = path.join(__dirname, "fixtures/test-site");
-const trackerSrc = path.join(repoRoot, "public/tracker.js");
+const trackerSrc = path.join(__dirname, "../public/tracker.js");
 const trackerDest = path.join(testSiteDir, "tracker.js");
 
-const TEST_SITE = "http://localhost:4001";
-const DASHBOARD =
+const PROD_APP = "https://ai-crawler-tracker.vercel.app";
+const LOCAL_ENDPOINT = "http://127.0.0.1:54321/functions/v1/track";
+const LOCAL_DASHBOARD =
   "http://localhost:3000/dashboard/sites/b1000000-0000-4000-8000-000000000001";
-const TRACK_PATH = "/functions/v1/track";
+const LOCAL_SITE_ID = "b1000000-0000-4000-8000-000000000001";
+
+const TEST_SITE = "http://localhost:4001";
 
 const BOTS = {
   GPTBot: "Mozilla/5.0 (compatible; GPTBot/1.0; +https://openai.com/gptbot)",
@@ -47,17 +50,23 @@ function parseArgs(argv) {
     bots: Object.keys(BOTS),
     keepOpen: false,
     pages: ["/", "/about.html"],
+    prod: false,
+    siteId: null,
   };
 
   for (const arg of argv) {
     if (arg === "--keep-open") {
       args.keepOpen = true;
+    } else if (arg === "--prod") {
+      args.prod = true;
     } else if (arg.startsWith("--bots=")) {
       args.bots = arg
         .slice("--bots=".length)
         .split(",")
         .map((name) => name.trim())
         .filter(Boolean);
+    } else if (arg.startsWith("--site-id=")) {
+      args.siteId = arg.slice("--site-id=".length).trim();
     }
   }
 
@@ -99,7 +108,8 @@ async function crawlAsBot(browser, botName, userAgent, pages) {
   for (const pagePath of pages) {
     const trackPromise = page.waitForResponse(
       (response) =>
-        response.url().includes(TRACK_PATH) &&
+        (response.url().includes("/functions/v1/track") ||
+          response.url().includes("/api/track")) &&
         response.request().method() === "POST",
       { timeout: 15_000 },
     );
@@ -115,8 +125,26 @@ async function crawlAsBot(browser, botName, userAgent, pages) {
   await context.close();
 }
 
+function patchFixtureHtml(siteId, endpoint) {
+  for (const file of ["index.html", "about.html"]) {
+    const filePath = path.join(testSiteDir, file);
+    let html = fs.readFileSync(filePath, "utf-8");
+    html = html.replace(/data-site-id="[^"]*"/, `data-site-id="${siteId}"`);
+    html = html.replace(
+      /data-endpoint="[^"]*"/,
+      `data-endpoint="${endpoint}"`,
+    );
+    fs.writeFileSync(filePath, html);
+  }
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2));
+
+  if (args.prod && !args.siteId) {
+    console.error("--prod requires --site-id=<uuid>");
+    process.exit(1);
+  }
 
   for (const botName of args.bots) {
     if (!BOTS[botName]) {
@@ -127,8 +155,19 @@ async function main() {
     }
   }
 
+  const siteId = args.siteId || LOCAL_SITE_ID;
+  const endpoint = args.prod ? `${PROD_APP}/api/track` : LOCAL_ENDPOINT;
+  const dashboard = args.prod
+    ? `${PROD_APP}/dashboard/sites/${siteId}`
+    : LOCAL_DASHBOARD;
+
   fs.copyFileSync(trackerSrc, trackerDest);
   console.log("Synced public/tracker.js → e2e/fixtures/test-site/tracker.js");
+
+  patchFixtureHtml(siteId, endpoint);
+  console.log(`Target: ${args.prod ? "PRODUCTION" : "local"}`);
+  console.log(`Endpoint: ${endpoint}`);
+  console.log(`Site ID: ${siteId}`);
 
   const server = startTestSiteServer();
   let browser;
@@ -144,14 +183,11 @@ async function main() {
     }
 
     console.log("\nOpening site activity dashboard for inspection…");
-    console.log(
-      "Login if needed: demo@searchable.dev / demo-password-123",
-    );
-    console.log(`Dashboard: ${DASHBOARD}`);
+    console.log(`Dashboard: ${dashboard}`);
 
     const inspect = await browser.newContext();
     const page = await inspect.newPage();
-    await page.goto(DASHBOARD, { waitUntil: "domcontentloaded" });
+    await page.goto(dashboard, { waitUntil: "domcontentloaded" });
 
     if (args.keepOpen) {
       console.log("\n--keep-open: browser will stay open. Press Ctrl+C to exit.");
