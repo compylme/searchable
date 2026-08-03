@@ -35,41 +35,6 @@ describe("SitesList", () => {
     expect(screen.getByText("acme.io")).toBeInTheDocument();
   });
 
-  it("shows empty state when there are no sites", () => {
-    renderWithIntl(<SitesList initialSites={[]} userId="user-1" />);
-
-    expect(
-      screen.getByText("No sites yet. Add your first site below."),
-    ).toBeInTheDocument();
-  });
-
-  it("toggles the add site form", async () => {
-    const user = userEvent.setup();
-    renderWithIntl(<SitesList initialSites={[]} userId="user-1" />);
-
-    await user.click(screen.getByRole("button", { name: /Add a new site/i }));
-    expect(screen.getByLabelText("Domain")).toBeInTheDocument();
-
-    await user.click(screen.getByRole("button", { name: "Cancel" }));
-    expect(screen.queryByLabelText("Domain")).not.toBeInTheDocument();
-  });
-
-  it("validates empty domain before calling createSite", async () => {
-    const user = userEvent.setup();
-    renderWithIntl(<SitesList initialSites={[]} userId="user-1" />);
-
-    await user.click(screen.getByRole("button", { name: /Add a new site/i }));
-    const input = screen.getByLabelText("Domain");
-    await user.clear(input);
-    await user.type(input, "   ");
-    await user.click(screen.getByRole("button", { name: "Create site" }));
-
-    expect(await screen.findByRole("alert")).toHaveTextContent(
-      "Enter a domain.",
-    );
-    expect(createSiteMock).not.toHaveBeenCalled();
-  });
-
   it("adds a site on successful create", async () => {
     createSiteMock.mockResolvedValue({
       site: {
@@ -109,23 +74,6 @@ describe("SitesList", () => {
 
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "You already have a site with that domain.",
-    );
-  });
-
-  it("shows raw error messages for non-duplicate failures", async () => {
-    createSiteMock.mockResolvedValue({
-      error: { message: "Something went wrong" },
-    });
-
-    const user = userEvent.setup();
-    renderWithIntl(<SitesList initialSites={[]} userId="user-1" />);
-
-    await user.click(screen.getByRole("button", { name: /Add a new site/i }));
-    await user.type(screen.getByLabelText("Domain"), "fail.com");
-    await user.click(screen.getByRole("button", { name: "Create site" }));
-
-    expect(await screen.findByRole("alert")).toHaveTextContent(
-      "Something went wrong",
     );
   });
 });

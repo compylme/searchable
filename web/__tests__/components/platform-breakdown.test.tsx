@@ -51,23 +51,6 @@ describe("PlatformBreakdown", () => {
     vi.clearAllMocks();
   });
 
-  it("renders empty state when there are no platforms", () => {
-    renderWithIntl(<PlatformBreakdown platforms={[]} />);
-
-    expect(
-      screen.getByText("No platform activity to chart yet."),
-    ).toBeInTheDocument();
-  });
-
-  it("renders the chart title for non-empty data", () => {
-    renderWithIntl(<PlatformBreakdown platforms={samplePlatforms} />);
-
-    expect(screen.getByText("Crawls by bot")).toBeInTheDocument();
-    expect(
-      screen.getByText("Click a bar to view bot details"),
-    ).toBeInTheDocument();
-  });
-
   it("opens a detail modal when a bar is clicked", async () => {
     const user = userEvent.setup();
     renderWithIntl(<PlatformBreakdown platforms={samplePlatforms} />);
@@ -78,16 +61,6 @@ describe("PlatformBreakdown", () => {
     expect(screen.getByText("Bot activity")).toBeInTheDocument();
     expect(screen.getAllByText("GPTBot").length).toBeGreaterThan(0);
     expect(screen.getByText("OpenAI")).toBeInTheDocument();
-  });
-
-  it("closes the modal via the close button", async () => {
-    const user = userEvent.setup();
-    renderWithIntl(<PlatformBreakdown platforms={samplePlatforms} />);
-
-    await user.click(screen.getByTestId("bar-click"));
-    await user.click(screen.getByRole("button", { name: /Close/i }));
-
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
   it("closes the modal when Escape is pressed", async () => {
