@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   getOverviewStats,
   getPlatformBreakdown,
@@ -9,6 +9,14 @@ import { createMockSupabase } from "../../helpers/mock-supabase";
 import { sampleEvents } from "../../helpers/test-fixtures";
 
 describe("site analytics services", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 5, 17));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
   it("getOverviewStats fetches events and computes overview", async () => {
     const { client, from, builders } = createMockSupabase({
       fromResults: {
@@ -61,7 +69,7 @@ describe("site analytics services", () => {
     });
   });
 
-  it("getSiteAnalytics returns all four aggregations from one fetch", async () => {
+  it("getSiteAnalytics returns all aggregations from one fetch", async () => {
     const { client, from } = createMockSupabase({
       fromResults: {
         crawler_events: { data: sampleEvents, error: null },
@@ -75,6 +83,10 @@ describe("site analytics services", () => {
     expect(analytics.platforms).toHaveLength(3);
     expect(analytics.topPages).toHaveLength(3);
     expect(analytics.activityLog).toHaveLength(4);
+    expect(analytics.weeklyActivity).toHaveLength(12);
+    expect(
+      analytics.weeklyActivity.reduce((sum, point) => sum + point.crawlCount, 0),
+    ).toBe(4);
   });
 
   it("throws when fetching crawler events fails", async () => {
@@ -105,5 +117,6 @@ describe("site analytics services", () => {
     expect(analytics.platforms).toEqual([]);
     expect(analytics.topPages).toEqual([]);
     expect(analytics.activityLog).toEqual([]);
+    expect(analytics.weeklyActivity).toEqual([]);
   });
 });

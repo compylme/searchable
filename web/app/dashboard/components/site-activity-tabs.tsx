@@ -13,6 +13,7 @@ import { ActivityLog } from "./activity-log";
 import { OverviewStats } from "./overview-stats";
 import { PlatformBreakdown } from "./platform-breakdown";
 import { TopPagesTable } from "./top-pages-table";
+import { WeeklyActivityChart } from "./weekly-activity-chart";
 
 type TabId = "overview" | "platforms" | "topPages" | "activityLog";
 
@@ -87,7 +88,12 @@ export function SiteActivityTabs({
           hidden={activeTab !== "overview"}
         >
           {activeTab === "overview" && (
-            <OverviewStats stats={analytics.overview} />
+            <div className="space-y-6">
+              <OverviewStats stats={analytics.overview} />
+              {analytics.weeklyActivity.length > 0 && (
+                <WeeklyActivityChart data={analytics.weeklyActivity} />
+              )}
+            </div>
           )}
         </div>
 

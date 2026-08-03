@@ -28,6 +28,7 @@ describe("SiteActivityTabs", () => {
     const overviewTab = screen.getByRole("tab", { name: /Overview/i });
     expect(overviewTab).toHaveAttribute("aria-selected", "true");
     expect(screen.getByText("Total crawls")).toBeInTheDocument();
+    expect(screen.getByText("Weekly crawls")).toBeInTheDocument();
   });
 
   it("switches panels when tabs are clicked", async () => {

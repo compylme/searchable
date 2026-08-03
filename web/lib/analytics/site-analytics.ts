@@ -6,9 +6,11 @@ import type {
   PlatformBreakdownItem,
   SiteAnalytics,
   TopPageItem,
+  WeeklyActivityPoint,
 } from "./types";
 
 const UNKNOWN = "unknown";
+const DEFAULT_WEEKLY_WINDOW = 12;
 
 async function fetchSiteEvents(
   supabase: SupabaseClient,
@@ -167,6 +169,82 @@ export function computeActivityLog(
     .sort((a, b) => b.receivedAt.localeCompare(a.receivedAt));
 }
 
+function startOfWeekMonday(date: Date): Date {
+  const next = new Date(date);
+  next.setHours(0, 0, 0, 0);
+  const day = next.getDay();
+  const diff = day === 0 ? 6 : day - 1;
+  next.setDate(next.getDate() - diff);
+  return next;
+}
+
+function toIsoDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function formatWeekLabel(date: Date): string {
+  return date.toLocaleString(undefined, {
+    month: "short",
+    day: "numeric",
+  });
+}
+
+function addDays(date: Date, days: number): Date {
+  const next = new Date(date);
+  next.setDate(next.getDate() + days);
+  return next;
+}
+
+export function computeWeeklyActivity(
+  events: CrawlerEventRow[],
+  options?: { weeks?: number; now?: Date },
+): WeeklyActivityPoint[] {
+  if (events.length === 0) {
+    return [];
+  }
+
+  const weeks = options?.weeks ?? DEFAULT_WEEKLY_WINDOW;
+  const now = options?.now ?? new Date();
+  const currentWeekStart = startOfWeekMonday(now);
+  const windowStart = addDays(currentWeekStart, -(weeks - 1) * 7);
+
+  const counts = new Map<string, number>();
+  for (let i = 0; i < weeks; i += 1) {
+    const weekStart = addDays(windowStart, i * 7);
+    counts.set(toIsoDate(weekStart), 0);
+  }
+
+  for (const event of events) {
+    const received = new Date(event.received_at);
+    if (Number.isNaN(received.getTime())) {
+      continue;
+    }
+
+    const weekStart = startOfWeekMonday(received);
+    const key = toIsoDate(weekStart);
+    if (!counts.has(key)) {
+      continue;
+    }
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+
+  const points: WeeklyActivityPoint[] = [];
+  for (let i = 0; i < weeks; i += 1) {
+    const weekStart = addDays(windowStart, i * 7);
+    const key = toIsoDate(weekStart);
+    points.push({
+      weekStart: key,
+      label: formatWeekLabel(weekStart),
+      crawlCount: counts.get(key) ?? 0,
+    });
+  }
+
+  return points;
+}
+
 export async function getOverviewStats(
   supabase: SupabaseClient,
   siteId: string,
@@ -203,5 +281,6 @@ export async function getSiteAnalytics(
     platforms: computePlatformBreakdown(events),
     topPages: computeTopPages(events),
     activityLog: computeActivityLog(events),
+    weeklyActivity: computeWeeklyActivity(events),
   };
 }
