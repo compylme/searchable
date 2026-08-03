@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useState, type SubmitEvent } from "react";
-import { ArrowRight, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { createSite } from "@/lib/sites/sites";
 import type { Site } from "@/lib/sites/types";
 import { createClient } from "@/lib/supabase/client";
@@ -69,20 +69,19 @@ export function SitesList({ initialSites, userId }: SitesListProps) {
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[640px] text-left text-sm">
+        <table className="w-full min-w-[560px] text-left text-sm">
           <thead>
             <tr className="border-b border-zinc-100 text-xs font-medium uppercase tracking-wide text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
               <th className="px-6 py-3 font-medium">{t("siteName")}</th>
               <th className="px-6 py-3 font-medium">{t("trackingId")}</th>
               <th className="px-6 py-3 font-medium">{t("created")}</th>
-              <th className="px-6 py-3 font-medium">{t("activity")}</th>
             </tr>
           </thead>
           <tbody>
             {sites.length === 0 && !adding && (
               <tr className="border-b border-zinc-100 dark:border-zinc-800">
                 <td
-                  colSpan={4}
+                  colSpan={3}
                   className="px-6 py-8 text-center text-zinc-500 dark:text-zinc-400"
                 >
                   {t("empty")}
@@ -93,31 +92,28 @@ export function SitesList({ initialSites, userId }: SitesListProps) {
             {sites.map((site) => (
               <tr
                 key={site.id}
-                className="border-b border-zinc-100 dark:border-zinc-800"
+                className="relative border-b border-zinc-100 transition hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900"
               >
                 <td className="px-6 py-4 font-medium text-zinc-900 dark:text-zinc-50">
-                  {site.domain}
+                  <Link
+                    href={`/dashboard/sites/${site.id}`}
+                    className="after:absolute after:inset-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 dark:focus-visible:ring-zinc-600"
+                    aria-label={t("openSite", { domain: site.domain })}
+                  >
+                    {site.domain}
+                  </Link>
                 </td>
                 <td className="px-6 py-4 font-mono text-xs text-zinc-600 dark:text-zinc-300">
                   {site.id}
                 </td>
                 <td className="px-6 py-4 text-zinc-600 dark:text-zinc-300">
-                  {new Date(site.created_at).toLocaleString()}
-                </td>
-                <td className="px-6 py-4">
-                  <Link
-                    href={`/dashboard/sites/${site.id}`}
-                    className="inline-flex items-center gap-1 font-medium text-zinc-900 underline-offset-4 hover:underline dark:text-zinc-50"
-                  >
-                    {t("viewActivity")}
-                    <ArrowRight aria-hidden="true" className="h-3.5 w-3.5" />
-                  </Link>
+                  {new Date(site.created_at).toLocaleDateString()}
                 </td>
               </tr>
             ))}
 
             <tr>
-              <td colSpan={4} className="px-6 py-4">
+              <td colSpan={3} className="px-6 py-4">
                 {adding ? (
                   <form onSubmit={handleCreate} className="space-y-3">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
