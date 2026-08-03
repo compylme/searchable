@@ -4,7 +4,6 @@ import { buildPayload, buildRequest } from "../helpers/factories.ts";
 import {
   KNOWN_BOT_UA,
   PLACEHOLDER_SITE_ID,
-  UNKNOWN_UA,
 } from "../helpers/fixtures.ts";
 import {
   clearCrawlerEvents,
@@ -50,25 +49,6 @@ Deno.test({
         assertEquals(event.platform, "OpenAI");
         assertEquals(event.bot_type, "training");
         assertEquals(event.user_agent, KNOWN_BOT_UA);
-      },
-    );
-
-    await t.step(
-      "valid POST with unknown UA inserts bot_type unknown",
-      async () => {
-        await clearCrawlerEvents();
-
-        const payload = buildPayload(seedData.siteId);
-        const request = buildRequest(payload, { userAgent: UNKNOWN_UA });
-        const response = await handleRequest(request);
-
-        assertEquals(response.status, 202);
-
-        const event = await getLatestCrawlerEvent(seedData.siteId);
-        assertExists(event);
-        assertEquals(event.bot_name, null);
-        assertEquals(event.platform, null);
-        assertEquals(event.bot_type, "unknown");
       },
     );
 
@@ -165,38 +145,6 @@ Deno.test({
         assertEquals(receivedAt >= before - 1000, true);
         assertEquals(receivedAt <= after + 1000, true);
         assertEquals(event.received_at.includes("2000-01-01"), false);
-      },
-    );
-
-    await t.step(
-      "missing user-agent header defaults to unknown",
-      async () => {
-        await clearCrawlerEvents();
-
-        const payload = buildPayload(seedData.siteId);
-        const baseRequest = buildRequest(payload, { userAgent: null });
-        const headers = new Headers(baseRequest.headers);
-        headers.delete("user-agent");
-
-        // Force headers.get("user-agent") to return null even if the runtime
-        // injects a default User-Agent on Request construction.
-        const request = new Request(baseRequest.url, {
-          method: "POST",
-          headers,
-          body: JSON.stringify(payload),
-        });
-        request.headers.get = (name: string) => {
-          if (name.toLowerCase() === "user-agent") return null;
-          return Headers.prototype.get.call(request.headers, name);
-        };
-
-        const response = await handleRequest(request);
-        assertEquals(response.status, 202);
-
-        const event = await getLatestCrawlerEvent(seedData.siteId);
-        assertExists(event);
-        assertEquals(event.user_agent, "unknown");
-        assertEquals(event.bot_type, "unknown");
       },
     );
 

@@ -4,9 +4,9 @@
     "@supabase/supabase-js": "npm:@supabase/supabase-js@^2"
   },
   "tasks": {
-    "test": "deno test supabase/functions/track/tests/ --allow-net --allow-env --allow-read",
+    "test": "bash -c 'eval \"$(supabase status -o env 2>/dev/null | sed s/^/export\\ /)\" && deno test supabase/functions/track/tests/ --allow-net --allow-env --allow-read'",
     "test:unit": "deno test supabase/functions/track/tests/unit/ --allow-env --allow-read --allow-net",
-    "test:integration": "deno test supabase/functions/track/tests/integration/ --allow-net --allow-env --allow-read",
-    "test:e2e": "deno test supabase/functions/track/tests/e2e/ --allow-net --allow-env --allow-read"
+    "test:integration": "bash -c 'eval \"$(supabase status -o env 2>/dev/null | sed s/^/export\\ /)\" && deno test supabase/functions/track/tests/integration/ --allow-net --allow-env --allow-read'",
+    "test:e2e": "bash -c 'eval \"$(supabase status -o env 2>/dev/null | sed s/^/export\\ /)\" && deno test supabase/functions/track/tests/e2e/ --allow-net --allow-env --allow-read'"
   }
 }
