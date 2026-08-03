@@ -41,9 +41,16 @@ export type ActivityLogEvent = {
   userAgent: string;
 };
 
+export type WeeklyActivityPoint = {
+  weekStart: string;
+  label: string;
+  crawlCount: number;
+};
+
 export type SiteAnalytics = {
   overview: OverviewStats;
   platforms: PlatformBreakdownItem[];
   topPages: TopPageItem[];
   activityLog: ActivityLogEvent[];
+  weeklyActivity: WeeklyActivityPoint[];
 };

@@ -52,8 +52,8 @@ export function PlatformBreakdown({ platforms }: PlatformBreakdownProps) {
   return (
     <>
       <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-        <h2 className="inline-flex items-center gap-1.5 text-sm font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-          <BarChart3 aria-hidden="true" className="h-4 w-4" />
+        <h2 className="inline-flex items-center gap-1.5 text-sm font-medium uppercase tracking-wide text-zinc-500">
+          <BarChart3 aria-hidden="true" className="h-4 w-4 text-brand" />
           {t("chartTitle")}
         </h2>
         <p className="mt-1 text-xs text-zinc-400 dark:text-zinc-500">
@@ -99,9 +99,8 @@ export function PlatformBreakdown({ platforms }: PlatformBreakdownProps) {
               />
               <Bar
                 dataKey="crawlCount"
-                fill="#18181b"
+                fill="#c15f3c"
                 radius={[6, 6, 0, 0]}
-                className="dark:fill-zinc-100"
                 cursor="pointer"
                 onClick={(data) => {
                   const payload = data?.payload as

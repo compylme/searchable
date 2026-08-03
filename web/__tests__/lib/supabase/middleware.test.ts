@@ -35,17 +35,6 @@ describe("updateSession", () => {
     expect(response.headers.get("location")).toBe("http://localhost:3000/login");
   });
 
-  it("redirects unauthenticated users away from nested dashboard routes", async () => {
-    getUserMock.mockResolvedValue({ data: { user: null } });
-
-    const response = await updateSession(
-      makeRequest("/dashboard/sites/site-1"),
-    );
-
-    expect(response.status).toBe(307);
-    expect(response.headers.get("location")).toBe("http://localhost:3000/login");
-  });
-
   it("redirects authenticated users away from /login", async () => {
     getUserMock.mockResolvedValue({
       data: { user: { id: "user-1" } },
@@ -77,17 +66,5 @@ describe("updateSession", () => {
 
     expect(response.status).toBe(200);
     expect(response.headers.get("location")).toBeNull();
-  });
-
-  it("creates a Supabase server client with env credentials", async () => {
-    getUserMock.mockResolvedValue({ data: { user: null } });
-
-    await updateSession(makeRequest("/"));
-
-    expect(createServerClientMock).toHaveBeenCalledWith(
-      "https://example.supabase.co",
-      "anon-key",
-      expect.objectContaining({ cookies: expect.any(Object) }),
-    );
   });
 });

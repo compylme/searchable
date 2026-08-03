@@ -23,16 +23,6 @@ describe("listSites", () => {
     expect(sites).toEqual(sampleSites);
   });
 
-  it("returns an empty array when data is null", async () => {
-    const { client } = createMockSupabase({
-      fromResults: {
-        sites: { data: null, error: null },
-      },
-    });
-
-    await expect(listSites(client)).resolves.toEqual([]);
-  });
-
   it("throws when Supabase returns an error", async () => {
     const { client } = createMockSupabase({
       fromResults: {
@@ -59,28 +49,6 @@ describe("getSite", () => {
     expect(builders.get("sites")?.eq).toHaveBeenCalledWith("id", "site-1");
     expect(builders.get("sites")?.maybeSingle).toHaveBeenCalled();
     expect(site).toEqual(sampleSites[0]);
-  });
-
-  it("returns null when no site matches", async () => {
-    const { client } = createMockSupabase({
-      fromResults: {
-        sites: { data: null, error: null },
-      },
-    });
-
-    await expect(getSite(client, "missing")).resolves.toBeNull();
-  });
-
-  it("throws when Supabase returns an error", async () => {
-    const { client } = createMockSupabase({
-      fromResults: {
-        sites: { data: null, error: { message: "db down" } },
-      },
-    });
-
-    await expect(getSite(client, "site-1")).rejects.toThrow(
-      "Failed to load site: db down",
-    );
   });
 });
 

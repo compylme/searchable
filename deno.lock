@@ -15,6 +15,9 @@
       "integrity": "291516b3d4c35024d6ffbc0a9df5bf4c64116e05b50012cf846710152d2ffdf7"
     }
   },
+  "remote": {
+    "https://jsr.io/@std/assert/meta.json": "8bdc3b3bfb46276227532039d8e494022b7f94c963e4f49b2172335b5e5d86e4"
+  },
   "workspace": {
     "dependencies": [
       "jsr:@std/assert@1",

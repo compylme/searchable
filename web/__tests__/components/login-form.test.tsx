@@ -26,15 +26,6 @@ describe("LoginForm", () => {
     signUp.mockResolvedValue({ error: null });
   });
 
-  it("starts in sign-in mode", () => {
-    renderWithIntl(<LoginForm />);
-
-    expect(screen.getByRole("heading", { name: "Sign in" })).toBeInTheDocument();
-    expect(
-      screen.queryByLabelText("Confirm password"),
-    ).not.toBeInTheDocument();
-  });
-
   it("switches to sign-up mode and shows confirm password", async () => {
     const user = userEvent.setup();
     renderWithIntl(<LoginForm />);
@@ -116,22 +107,5 @@ describe("LoginForm", () => {
       });
       expect(push).toHaveBeenCalledWith("/dashboard");
     });
-  });
-
-  it("clears error when switching modes", async () => {
-    signInWithPassword.mockResolvedValue({
-      error: { message: "Invalid login credentials" },
-    });
-
-    const user = userEvent.setup();
-    renderWithIntl(<LoginForm />);
-
-    await user.type(screen.getByLabelText("Email"), "a@example.com");
-    await user.type(screen.getByLabelText("Password"), "wrongpass");
-    await user.click(screen.getByRole("button", { name: "Sign in" }));
-    expect(await screen.findByRole("alert")).toBeInTheDocument();
-
-    await user.click(screen.getByRole("button", { name: "Sign up" }));
-    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 });

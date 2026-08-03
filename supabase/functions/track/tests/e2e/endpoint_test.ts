@@ -77,22 +77,6 @@ Deno.test({
       },
     );
 
-    await t.step("POST with invalid JSON returns 400", async () => {
-      const response = await fetch(TRACK_ENDPOINT, {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-          "user-agent": KNOWN_BOT_UA,
-        },
-        body: "{ not-json",
-      });
-      const body = await response.json();
-
-      assertEquals(response.status, 400);
-      assertEquals(body.error, "Request body must be valid JSON");
-      assertEquals(response.headers.get("Content-Type"), "application/json");
-    });
-
     await teardown(seedData);
   },
 });

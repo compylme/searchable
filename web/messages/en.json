@@ -39,10 +39,10 @@
     "subtitle": "Add the Searchable tracker to your site so AI crawler visits show up in your dashboard.",
     "step1": "Add a site below to create a Tracking ID for your domain.",
     "step2": "Copy the Tracking ID from the Sites table.",
-    "step3": "Paste the script snippet into your site’s HTML just before the closing </body> tag, replacing YOUR_TRACKING_ID with your Tracking ID.",
+    "step3": "Paste the script snippet into your site’s HTML just before the closing '</body>' tag, replacing YOUR_TRACKING_ID with your Tracking ID.",
     "step4": "Deploy your site. When AI crawlers visit, activity will appear on that site’s Activity page.",
     "snippetLabel": "Script snippet",
-    "snippetHint": "Host tracker.js where your site can load it, and keep data-site-id set to your Tracking ID."
+    "snippetHint": "Keep data-site-id set to your Tracking ID. data-endpoint points at the Searchable track API."
   },
   "SignOut": {
     "label": "Sign out",
@@ -82,6 +82,9 @@
     "emptyPlatforms": "No platform activity to chart yet.",
     "emptyTopPages": "No pages have been crawled yet.",
     "emptyActivityLog": "No activity matches the selected filter.",
+    "emptyWeeklyActivity": "No weekly activity to chart yet.",
+    "weeklyActivityTitle": "Weekly crawls",
+    "weeklyActivityHint": "Total crawler visits over the last 12 weeks",
     "chartTitle": "Crawls by bot",
     "crawlCount": "Crawl count",
     "platform": "Platform",

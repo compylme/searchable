@@ -13,6 +13,7 @@ import { ActivityLog } from "./activity-log";
 import { OverviewStats } from "./overview-stats";
 import { PlatformBreakdown } from "./platform-breakdown";
 import { TopPagesTable } from "./top-pages-table";
+import { WeeklyActivityChart } from "./weekly-activity-chart";
 
 type TabId = "overview" | "platforms" | "topPages" | "activityLog";
 
@@ -33,8 +34,8 @@ const TAB_ICONS: Record<
 
 function tabClassName(selected: boolean): string {
   return selected
-    ? "inline-flex items-center gap-1.5 border-b-2 border-zinc-900 px-4 py-2.5 text-sm font-medium text-zinc-900 dark:border-zinc-50 dark:text-zinc-50"
-    : "inline-flex items-center gap-1.5 border-b-2 border-transparent px-4 py-2.5 text-sm font-medium text-zinc-500 transition hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50";
+    ? "inline-flex items-center gap-1.5 border-b-2 border-brand px-4 py-2.5 text-sm font-medium text-brand"
+    : "inline-flex items-center gap-1.5 border-b-2 border-transparent px-4 py-2.5 text-sm font-medium text-zinc-500 transition hover:text-zinc-900";
 }
 
 export function SiteActivityTabs({
@@ -56,7 +57,7 @@ export function SiteActivityTabs({
       <div
         role="tablist"
         aria-label={t("tabsLabel")}
-        className="flex gap-1 border-b border-zinc-200 dark:border-zinc-800"
+        className="flex gap-1 border-b border-zinc-200"
       >
         {tabs.map((tab) => {
           const selected = activeTab === tab.id;
@@ -87,7 +88,12 @@ export function SiteActivityTabs({
           hidden={activeTab !== "overview"}
         >
           {activeTab === "overview" && (
-            <OverviewStats stats={analytics.overview} />
+            <div className="space-y-6">
+              <OverviewStats stats={analytics.overview} />
+              {analytics.weeklyActivity.length > 0 && (
+                <WeeklyActivityChart data={analytics.weeklyActivity} />
+              )}
+            </div>
           )}
         </div>
 

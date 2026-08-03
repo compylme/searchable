@@ -101,8 +101,8 @@ function distinctSorted(values: string[]): string[] {
 
 function chipClassName(selected: boolean): string {
   return selected
-    ? "rounded-lg bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white dark:bg-zinc-50 dark:text-zinc-900"
-    : "rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800";
+    ? "rounded-lg bg-brand px-3 py-1.5 text-sm font-medium text-white"
+    : "rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50";
 }
 
 function toggleInSet(current: Set<string>, value: string): Set<string> {
@@ -244,7 +244,7 @@ export function ActivityLog({ domain, events }: ActivityLogProps) {
           <span className="inline-flex items-center gap-2 text-sm font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
             {t("filtersTitle")}
             {hasActiveFilters && (
-              <span className="rounded-md bg-zinc-100 px-1.5 py-0.5 text-xs font-medium normal-case tracking-normal text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
+              <span className="rounded-md bg-brand-muted px-1.5 py-0.5 text-xs font-medium normal-case tracking-normal text-brand">
                 {(preset ? 1 : 0) + selectedBots.size + selectedPlatforms.size}
               </span>
             )}
@@ -346,7 +346,7 @@ export function ActivityLog({ domain, events }: ActivityLogProps) {
                 <button
                   type="button"
                   onClick={clearFilters}
-                  className="shrink-0 text-sm font-medium text-zinc-500 underline-offset-4 transition hover:text-zinc-900 hover:underline dark:text-zinc-400 dark:hover:text-zinc-50"
+                  className="shrink-0 text-sm font-medium text-zinc-500 underline-offset-4 transition hover:text-brand hover:underline"
                 >
                   {t("clearFilters")}
                 </button>

@@ -1,45 +1,129 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI Crawler Tracker
 
-## Getting Started
+Track which AI bots (GPTBot, ClaudeBot, PerplexityBot, etc.) are crawling your website, what pages they visit, and how often. Add a single script tag to your site and monitor activity from a dashboard.
 
-First, run the development server:
+**Live app:** [ai-crawler-tracker.vercel.app](https://ai-crawler-tracker.vercel.app)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Architecture
+
+```
+Your website                         Supabase
+─────────────                        ────────
+<script src="…/tracker.js">  →       Edge Function (classify + store)
+                                     Postgres (sites, crawler_events)
+                                           ↑
+Vercel (Next.js dashboard)  ←──────────────┘
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **tracker.js** -- lightweight script embedded on your site; fires a POST on page load directly to the Supabase edge function
+- **Edge Function (`track`)** -- validates the payload, classifies the bot by User-Agent, and inserts the event
+- **Dashboard** -- authenticated views showing activity per site, bot breakdowns, top pages, and weekly trends
+
+## Local Development
+
+### Prerequisites
+
+- Node.js 20+
+- [Supabase CLI](https://supabase.com/docs/guides/cli)
+
+### Setup
+
+```bash
+# Start local Supabase (Postgres, Auth, Edge Functions)
+supabase start
+
+# Seed the database with demo data
+supabase db reset
+
+# Install dependencies and start the dev server
+cd web
+npm install
+cp .env.local.example .env.local   # uses local Supabase by default
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000).
 
 ### Demo user
 
-After seeding the local database with `supabase db reset` (from the repo root), sign in at [/login](http://localhost:3000/login) with:
+Sign in at [/login](http://localhost:3000/login) with:
 
 - **Email:** `demo@searchable.dev`
 - **Password:** `demo-password-123`
 
 This account includes sample sites and crawler events for local demos.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Simulating bot crawls
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+# Against local Supabase (requires supabase start)
+npm run crawl:bots
 
-## Learn More
+# Against production
+npm run crawl:bots -- --prod --site-id=<your-site-uuid>
 
-To learn more about Next.js, take a look at the following resources:
+# Specific bots only
+npm run crawl:bots -- --prod --site-id=<uuid> --bots=GPTBot,ClaudeBot
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+This sends POSTs with spoofed User-Agent headers — no browser required.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Production Deployment
 
-## Deploy on Vercel
+### 1. Supabase
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Create a project at [supabase.com](https://supabase.com), then:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+supabase link --project-ref <your-project-ref>
+supabase db push
+supabase functions deploy track
+```
+
+Set the **Site URL** in Authentication > URL Configuration to your Vercel app URL.
+
+### 2. Vercel
+
+```bash
+cd web
+vercel
+
+# Set environment variables
+vercel env add NEXT_PUBLIC_SUPABASE_URL        # https://<ref>.supabase.co
+vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY   # from Supabase dashboard > Settings > API
+
+# Deploy to production
+vercel --prod
+```
+
+### Environment Variables
+
+| Variable | Description |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL (include `https://`) |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon/publishable key |
+
+## Embedding the Tracker
+
+Add this to any website you want to monitor:
+
+```html
+<script
+  defer
+  src="https://ai-crawler-tracker.vercel.app/tracker.js"
+  data-site-id="YOUR_SITE_ID"
+  data-endpoint="https://trkaijnxdulrvtgcvddn.supabase.co/functions/v1/track"
+></script>
+```
+
+The site ID is shown in the dashboard after you register a site.
+
+## Scripts
+
+| Command | Description |
+|---|---|
+| `npm run dev` | Start Next.js dev server |
+| `npm run build` | Production build |
+| `npm run test` | Run unit tests (Vitest) |
+| `npm run crawl:bots` | Simulate AI bot crawls via HTTP |
+| `npm run lint` | Run ESLint |

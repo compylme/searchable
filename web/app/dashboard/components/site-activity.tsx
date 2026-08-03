@@ -22,20 +22,18 @@ export async function SiteActivity({
       <div className="mx-auto w-full max-w-5xl">
         <Link
           href="/dashboard"
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-zinc-500 underline-offset-4 hover:text-zinc-900 hover:underline dark:text-zinc-400 dark:hover:text-zinc-50"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-zinc-500 underline-offset-4 hover:text-brand hover:underline"
         >
           <ArrowLeft aria-hidden="true" className="h-4 w-4" />
           {t("backToDashboard")}
         </Link>
 
         <div className="mt-6">
-          <h1 className="inline-flex items-center gap-2 text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
-            <Globe aria-hidden="true" className="h-5 w-5 shrink-0" />
+          <h1 className="inline-flex items-center gap-2 text-2xl font-semibold tracking-tight text-zinc-900">
+            <Globe aria-hidden="true" className="h-5 w-5 shrink-0 text-brand" />
             {domain}
           </h1>
-          <p className="mt-1 font-mono text-xs text-zinc-500 dark:text-zinc-400">
-            {siteId}
-          </p>
+          <p className="mt-1 font-mono text-xs text-zinc-500">{siteId}</p>
         </div>
 
         <SiteActivityTabs domain={domain} analytics={analytics} />
