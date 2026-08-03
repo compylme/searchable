@@ -2,7 +2,10 @@
   const script = document.currentScript;
   const siteId = script?.dataset.siteId;
 
-  if (!siteId) return;
+  if (!siteId || !script?.src) return;
+
+  const endpoint =
+    script.dataset.endpoint || new URL("/api/track", script.src).href;
 
   const payload = {
     site_id: siteId,
@@ -10,7 +13,7 @@
     timestamp: new Date().toISOString(),
   };
 
-  fetch("http://127.0.0.1:54321/functions/v1/track", {
+  fetch(endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
