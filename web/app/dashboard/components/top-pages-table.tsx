@@ -12,6 +12,16 @@ type TopPagesTableProps = {
   pages: TopPageItem[];
 };
 
+function SortIcon({ column, sortKey, sortDirection }: { column: SortKey; sortKey: SortKey; sortDirection: SortDirection }) {
+  if (sortKey !== column) {
+    return <ArrowUpDown aria-hidden="true" className="h-3.5 w-3.5" />;
+  }
+  if (sortDirection === "asc") {
+    return <ArrowUp aria-hidden="true" className="h-3.5 w-3.5" />;
+  }
+  return <ArrowDown aria-hidden="true" className="h-3.5 w-3.5" />;
+}
+
 export function TopPagesTable({ pages }: TopPagesTableProps) {
   const t = useTranslations("SiteActivity");
   const [sortKey, setSortKey] = useState<SortKey>("crawlCount");
@@ -41,16 +51,6 @@ export function TopPagesTable({ pages }: TopPagesTableProps) {
 
     setSortKey(key);
     setSortDirection(key === "crawlCount" ? "desc" : "asc");
-  }
-
-  function SortIcon({ column }: { column: SortKey }) {
-    if (sortKey !== column) {
-      return <ArrowUpDown aria-hidden="true" className="h-3.5 w-3.5" />;
-    }
-    if (sortDirection === "asc") {
-      return <ArrowUp aria-hidden="true" className="h-3.5 w-3.5" />;
-    }
-    return <ArrowDown aria-hidden="true" className="h-3.5 w-3.5" />;
   }
 
   function sortAriaLabel(key: SortKey) {
@@ -85,7 +85,7 @@ export function TopPagesTable({ pages }: TopPagesTableProps) {
                   className="inline-flex items-center gap-1.5 transition hover:text-zinc-900 dark:hover:text-zinc-50"
                 >
                   {t("pagePath")}
-                  <SortIcon column="pagePath" />
+                  <SortIcon column="pagePath" sortKey={sortKey} sortDirection={sortDirection} />
                 </button>
               </th>
               <th className="px-6 py-3 font-medium">{t("crawlers")}</th>
@@ -97,7 +97,7 @@ export function TopPagesTable({ pages }: TopPagesTableProps) {
                   className="inline-flex items-center gap-1.5 transition hover:text-zinc-900 dark:hover:text-zinc-50"
                 >
                   {t("crawlCount")}
-                  <SortIcon column="crawlCount" />
+                  <SortIcon column="crawlCount" sortKey={sortKey} sortDirection={sortDirection} />
                 </button>
               </th>
             </tr>

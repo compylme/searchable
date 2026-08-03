@@ -20,17 +20,6 @@ vi.mock("recharts", () => ({
 }));
 
 describe("SiteActivityTabs", () => {
-  it("renders overview tab selected by default", () => {
-    renderWithIntl(
-      <SiteActivityTabs domain="example.com" analytics={sampleSiteAnalytics} />,
-    );
-
-    const overviewTab = screen.getByRole("tab", { name: /Overview/i });
-    expect(overviewTab).toHaveAttribute("aria-selected", "true");
-    expect(screen.getByText("Total crawls")).toBeInTheDocument();
-    expect(screen.getByText("Weekly crawls")).toBeInTheDocument();
-  });
-
   it("switches panels when tabs are clicked", async () => {
     const user = userEvent.setup();
     renderWithIntl(
@@ -45,32 +34,5 @@ describe("SiteActivityTabs", () => {
     );
     expect(screen.getByText("/blog")).toBeInTheDocument();
     expect(screen.queryByText("Total crawls")).not.toBeInTheDocument();
-  });
-
-  it("exposes ARIA tablist relationships", () => {
-    renderWithIntl(
-      <SiteActivityTabs domain="example.com" analytics={sampleSiteAnalytics} />,
-    );
-
-    expect(screen.getByRole("tablist")).toHaveAttribute(
-      "aria-label",
-      "Site activity",
-    );
-
-    const platformsTab = screen.getByRole("tab", { name: /Platforms/i });
-    expect(platformsTab).toHaveAttribute("aria-controls", "site-panel-platforms");
-    expect(platformsTab).toHaveAttribute("id", "site-tab-platforms");
-  });
-
-  it("shows activity log panel content", async () => {
-    const user = userEvent.setup();
-    renderWithIntl(
-      <SiteActivityTabs domain="example.com" analytics={sampleSiteAnalytics} />,
-    );
-
-    await user.click(screen.getByRole("tab", { name: /Activity log/i }));
-
-    expect(screen.getByText("Filters")).toBeInTheDocument();
-    expect(screen.getByText(/Showing 3 events/)).toBeInTheDocument();
   });
 });

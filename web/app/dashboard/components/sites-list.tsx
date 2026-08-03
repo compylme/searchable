@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useState, type SubmitEvent } from "react";
-import { Plus } from "lucide-react";
+import { useCallback, useState, type SubmitEvent } from "react";
+import { Check, Copy, Plus } from "lucide-react";
 import { createSite } from "@/lib/sites/sites";
 import type { Site } from "@/lib/sites/types";
 import { createClient } from "@/lib/supabase/client";
@@ -24,6 +24,13 @@ export function SitesList({ initialSites, userId }: SitesListProps) {
   const [domain, setDomain] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const copyTrackingId = useCallback(async (id: string) => {
+    await navigator.clipboard.writeText(id);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId((prev) => (prev === id ? null : prev)), 1500);
+  }, []);
 
   async function handleCreate(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -104,7 +111,21 @@ export function SitesList({ initialSites, userId }: SitesListProps) {
                   </Link>
                 </td>
                 <td className="px-6 py-4 font-mono text-xs text-zinc-600 dark:text-zinc-300">
-                  {site.id}
+                  <span className="relative z-10 inline-flex items-center gap-1.5">
+                    {site.id}
+                    <button
+                      type="button"
+                      onClick={() => copyTrackingId(site.id)}
+                      aria-label={t("copyId")}
+                      className="rounded p-0.5 text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+                    >
+                      {copiedId === site.id ? (
+                        <Check aria-hidden="true" className="h-3.5 w-3.5 text-green-600" />
+                      ) : (
+                        <Copy aria-hidden="true" className="h-3.5 w-3.5" />
+                      )}
+                    </button>
+                  </span>
                 </td>
                 <td className="px-6 py-4 text-zinc-600 dark:text-zinc-300">
                   {new Date(site.created_at).toLocaleDateString()}

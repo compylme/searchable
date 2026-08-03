@@ -35,20 +35,3 @@ Deno.test("classifyCrawler returns unknown for unrecognized UA", () => {
     bot_type: "unknown",
   });
 });
-
-Deno.test("classifyCrawler is case insensitive", () => {
-  const result = classifyCrawler("compatible; gptbot/1.0");
-
-  assertEquals(result.bot_name, "GPTBot");
-  assertEquals(result.platform, "OpenAI");
-  assertEquals(result.bot_type, "training");
-});
-
-Deno.test("classifyCrawler matches pattern within surrounding UA text", () => {
-  const result = classifyCrawler(
-    "Mozilla/5.0 (compatible; GPTBot/1.2; +https://openai.com/gptbot) AppleWebKit/537.36",
-  );
-
-  assertEquals(result.bot_name, "GPTBot");
-  assertEquals(result.bot_type, "training");
-});

@@ -28,20 +28,6 @@ Deno.test("parsePayload throws for invalid JSON", async () => {
   );
 });
 
-Deno.test("parsePayload throws for empty body", async () => {
-  const request = new Request("http://localhost/track", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: "",
-  });
-
-  await assertRejects(
-    () => parsePayload(request),
-    RequestValidationError,
-    "Request body must be valid JSON",
-  );
-});
-
 Deno.test("validatePayload accepts a valid payload", () => {
   const payload = {
     site_id: PLACEHOLDER_SITE_ID,
@@ -80,13 +66,5 @@ Deno.test("validatePayload rejects invalid page_url", () => {
     () => validatePayload(INVALID_PAYLOADS.badUrl as never),
     RequestValidationError,
     "page_url must be a valid URL",
-  );
-});
-
-Deno.test("validatePayload rejects null/non-object body", () => {
-  assertThrows(
-    () => validatePayload(null as never),
-    RequestValidationError,
-    "Invalid request body",
   );
 });

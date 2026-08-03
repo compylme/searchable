@@ -62,7 +62,8 @@
     "cancel": "Cancel",
     "addSite": "Add a new site",
     "enterDomain": "Enter a domain.",
-    "duplicateDomain": "You already have a site with that domain."
+    "duplicateDomain": "You already have a site with that domain.",
+    "copyId": "Copy tracking ID"
   },
   "SiteActivity": {
     "backToDashboard": "Back to dashboard",
