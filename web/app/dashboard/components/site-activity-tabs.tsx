@@ -31,6 +31,12 @@ const TAB_ICONS: Record<
   activityLog: ScrollText,
 };
 
+function tabClassName(selected: boolean): string {
+  return selected
+    ? "inline-flex items-center gap-1.5 border-b-2 border-zinc-900 px-4 py-2.5 text-sm font-medium text-zinc-900 dark:border-zinc-50 dark:text-zinc-50"
+    : "inline-flex items-center gap-1.5 border-b-2 border-transparent px-4 py-2.5 text-sm font-medium text-zinc-500 transition hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50";
+}
+
 export function SiteActivityTabs({
   domain,
   analytics,
@@ -64,11 +70,7 @@ export function SiteActivityTabs({
               id={`site-tab-${tab.id}`}
               aria-controls={`site-panel-${tab.id}`}
               onClick={() => setActiveTab(tab.id)}
-              className={
-                selected
-                  ? "inline-flex items-center gap-1.5 border-b-2 border-zinc-900 px-4 py-2.5 text-sm font-medium text-zinc-900 dark:border-zinc-50 dark:text-zinc-50"
-                  : "inline-flex items-center gap-1.5 border-b-2 border-transparent px-4 py-2.5 text-sm font-medium text-zinc-500 transition hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50"
-              }
+              className={tabClassName(selected)}
             >
               <Icon aria-hidden="true" className="h-4 w-4" />
               {tab.label}
