@@ -1,11 +1,9 @@
 (() => {
   const script = document.currentScript;
   const siteId = script?.dataset.siteId;
+  const endpoint = script?.dataset.endpoint;
 
-  if (!siteId || !script?.src) return;
-
-  const endpoint =
-    script.dataset.endpoint || new URL("/api/track", script.src).href;
+  if (!siteId || !endpoint) return;
 
   const payload = {
     site_id: siteId,
