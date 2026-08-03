@@ -171,17 +171,17 @@ export function computeActivityLog(
 
 function startOfWeekMonday(date: Date): Date {
   const next = new Date(date);
-  next.setHours(0, 0, 0, 0);
-  const day = next.getDay();
+  next.setUTCHours(0, 0, 0, 0);
+  const day = next.getUTCDay();
   const diff = day === 0 ? 6 : day - 1;
-  next.setDate(next.getDate() - diff);
+  next.setUTCDate(next.getUTCDate() - diff);
   return next;
 }
 
 function toIsoDate(date: Date): string {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(date.getUTCDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 }
 
@@ -189,12 +189,13 @@ function formatWeekLabel(date: Date): string {
   return date.toLocaleString(undefined, {
     month: "short",
     day: "numeric",
+    timeZone: "UTC",
   });
 }
 
 function addDays(date: Date, days: number): Date {
   const next = new Date(date);
-  next.setDate(next.getDate() + days);
+  next.setUTCDate(next.getUTCDate() + days);
   return next;
 }
 

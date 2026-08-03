@@ -11,7 +11,7 @@ import { sampleEvents } from "../../helpers/test-fixtures";
 describe("site analytics services", () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    vi.setSystemTime(new Date(2026, 5, 17));
+    vi.setSystemTime(new Date(Date.UTC(2026, 5, 17)));
   });
 
   afterEach(() => {

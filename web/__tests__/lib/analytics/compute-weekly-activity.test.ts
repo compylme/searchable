@@ -8,7 +8,7 @@ describe("computeWeeklyActivity", () => {
   });
 
   it("returns a fixed week window including the current week", () => {
-    const now = new Date(2026, 5, 17);
+    const now = new Date(Date.UTC(2026, 5, 17));
     const result = computeWeeklyActivity(
       [makeCrawlerEvent({ received_at: "2026-06-17T12:00:00.000Z" })],
       { weeks: 4, now },
@@ -28,7 +28,7 @@ describe("computeWeeklyActivity", () => {
   });
 
   it("buckets multiple events into the same week", () => {
-    const now = new Date(2026, 5, 17);
+    const now = new Date(Date.UTC(2026, 5, 17));
     const result = computeWeeklyActivity(
       [
         makeCrawlerEvent({ received_at: "2026-06-15T10:00:00.000Z" }),
@@ -45,7 +45,7 @@ describe("computeWeeklyActivity", () => {
   });
 
   it("zero-fills weeks with no activity inside the window", () => {
-    const now = new Date(2026, 5, 17);
+    const now = new Date(Date.UTC(2026, 5, 17));
     const result = computeWeeklyActivity(
       [makeCrawlerEvent({ received_at: "2026-06-01T10:00:00.000Z" })],
       { weeks: 3, now },
@@ -55,7 +55,7 @@ describe("computeWeeklyActivity", () => {
   });
 
   it("ignores events outside the window", () => {
-    const now = new Date(2026, 5, 17);
+    const now = new Date(Date.UTC(2026, 5, 17));
     const result = computeWeeklyActivity(
       [
         makeCrawlerEvent({ received_at: "2026-01-01T10:00:00.000Z" }),
@@ -68,7 +68,7 @@ describe("computeWeeklyActivity", () => {
   });
 
   it("skips invalid timestamps", () => {
-    const now = new Date(2026, 5, 17);
+    const now = new Date(Date.UTC(2026, 5, 17));
     const result = computeWeeklyActivity(
       [
         makeCrawlerEvent({ received_at: "not-a-date" }),
@@ -83,7 +83,7 @@ describe("computeWeeklyActivity", () => {
   });
 
   it("defaults to a 12-week window", () => {
-    const now = new Date(2026, 5, 17);
+    const now = new Date(Date.UTC(2026, 5, 17));
     const result = computeWeeklyActivity(
       [makeCrawlerEvent({ received_at: "2026-06-16T10:00:00.000Z" })],
       { now },
