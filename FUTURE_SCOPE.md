@@ -1,44 +1,38 @@
 # Future Scope
 
-Items deferred from the initial testing framework. Track these as the product matures.
+Items deferred from the initial MVP implemention
 
-## Rate limiting and abuse protection
+## High volume sites support
 
-The public `track` endpoint has JWT verification disabled so beacons can call it anonymously. There is currently no rate limiting, IP throttling, or abuse detection.
+The MVP uses synchronous Edge Function processing and direct Postgres inserts because the expected workload is lightweight.
 
-Future work:
+At higher volumes, the ingestion pipeline could be decoupled using durable queues on either side of the processing stage. An initial queue could buffer incoming tracking payloads before validation, classification, and enrichment. A second queue could buffer processed events before persistence, allowing database writes to be retried, rate-controlled, and batched. Database partitioning could also be introduced to support sustained high-volume writes and improve query performance as the event table grows.
 
-- Add per-`site_id` and/or per-IP rate limits at the edge function or API gateway layer
-- Reject obviously abusive payloads (oversized bodies, high fan-out)
-- Emit metrics/alerts when thresholds are exceeded
+Each processing stage could then scale independently according to workload, while the queues provide buffering, back-pressure, and resilience during traffic spikes or temporary downstream failures.
 
-### Related tests (when implemented)
+Observability would be added across the pipeline to track metrics such as event throughput, processing latency, queue depth, oldest message age, failure rate, retry count, and database write latency. These signals, alongside performance and load-testing results tracked over time, would help identify bottlenecks, detect degraded performance, establish scaling thresholds, and guide optimisation decisions.
 
-- Unit tests for rate-limit decision helpers
-- Integration tests proving over-limit requests are rejected and under-limit requests still persist
-- Load / stress tests that simulate burst traffic and measure rejection behavior
 
-## Performance benchmarking
+## Performance testing
 
-- Capture cold-start latency for the edge function in CI or a nightly job
-- Track p95 / p99 response times for successful `POST /track`
-- Add a lightweight soak test to catch regressions under sustained load
+To validate the performance after high volume sites support is implemented, a performance testing framework could be added. This could involve load testing with varying payload sizes and concurrency levels, as well as monitoring and alerting for performance regressions.
 
-## Coverage reporting
 
-- Enable Deno coverage (`deno test --coverage=coverage`) in CI
-- Publish an HTML or lcov report and optionally gate merges on a minimum threshold
 
-## Contract testing
+## AI bots may not execute JavaScript
 
-If additional consumers of the tracking API appear (SDKs, server-side collectors, third-party integrations):
+A future server-side tracking option could capture crawler requests within the customer’s application or hosting infrastructure before the page is returned. For example, a customer could install a small server-side integration that reads the requested URL and User-Agent and forwards that information to the tracking service.
 
-- Formalize the request/response contract (OpenAPI or similar)
-- Add consumer-driven contract tests so payload shape changes fail early
+This would detect crawlers that fetch HTML without executing JavaScript, but it is deferred to V2 because it requires more technical integration from the customer.
 
-## Tracker beacon tests
+Other possible approaches include:
 
-`public/tracker.js` is currently untested. Future options:
+* Using a reverse proxy, such as Nginx, to inspect incoming requests before they reach the application.
+* Integrating with the customer’s hosting or CDN provider to capture request metadata at the edge.
+* Providing framework-specific middleware or server-side SDKs for platforms such as Next.js.
 
-- Unit-test payload construction in a DOM environment (e.g. Deno + happy-dom / linkedom)
-- E2E test that serves a fixture HTML page embedding the beacon and asserts a row is recorded
+These approaches would improve coverage, but they introduce additional setup, platform-specific implementation, and operational complexity beyond the MVP scope.
+
+Supporting server-side tracking would likely require a more involved customer onboarding process. Unlike the JavaScript tracker, which can be added with a single script tag, server-side integrations may depend on the customer’s framework, hosting provider, reverse proxy, or CDN configuration.
+
+A V2 onboarding flow could therefore include platform-specific setup guides, generated configuration examples, integration validation, and troubleshooting support. For more complex environments, assisted onboarding may also be appropriate to help customers implement and verify the integration correctly.
