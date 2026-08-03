@@ -66,8 +66,8 @@ export function OverviewStats({ stats }: OverviewStatsProps) {
             key={card.label}
             className="rounded-2xl border border-zinc-200 bg-white px-5 py-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950"
           >
-            <p className="inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-              <Icon aria-hidden="true" className="h-3.5 w-3.5" />
+            <p className="inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-zinc-500">
+              <Icon aria-hidden="true" className="h-3.5 w-3.5 text-brand" />
               {card.label}
             </p>
             <p className="mt-2 text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">

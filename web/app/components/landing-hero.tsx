@@ -6,15 +6,15 @@ export async function LandingHero() {
 
   return (
     <main className="flex flex-1 flex-col items-center justify-center px-4 py-16 text-center">
-      <h1 className="text-4xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+      <h1 className="text-4xl font-semibold tracking-tight text-zinc-900">
         {t("title")}
       </h1>
-      <p className="mt-3 max-w-md text-base text-zinc-500 dark:text-zinc-400">
+      <p className="mt-3 max-w-md text-base text-zinc-500">
         {t("subtitle")}
       </p>
       <Link
         href="/login"
-        className="mt-8 rounded-lg bg-zinc-900 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200"
+        className="mt-8 rounded-lg bg-brand px-5 py-2.5 text-sm font-medium text-white transition hover:bg-brand-hover"
       >
         {t("cta")}
       </Link>

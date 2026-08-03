@@ -28,7 +28,7 @@ export function TrackingSetup() {
           <h2 className="inline-flex items-center gap-2 text-sm font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
             <CircleHelp
               aria-hidden="true"
-              className="h-4 w-4 shrink-0"
+              className="h-4 w-4 shrink-0 text-brand"
             />
             {t("title")}
           </h2>
@@ -54,7 +54,7 @@ export function TrackingSetup() {
           <ol className="space-y-4">
             {steps.map((step, index) => (
               <li key={index} className="flex gap-3">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-zinc-900 text-xs font-semibold text-white dark:bg-zinc-50 dark:text-zinc-900">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand text-xs font-semibold text-white">
                   {index + 1}
                 </span>
                 <p className="pt-1 text-sm text-zinc-700 dark:text-zinc-200">

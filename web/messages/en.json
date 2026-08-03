@@ -39,7 +39,7 @@
     "subtitle": "Add the Searchable tracker to your site so AI crawler visits show up in your dashboard.",
     "step1": "Add a site below to create a Tracking ID for your domain.",
     "step2": "Copy the Tracking ID from the Sites table.",
-    "step3": "Paste the script snippet into your site’s HTML just before the closing </body> tag, replacing YOUR_TRACKING_ID with your Tracking ID.",
+    "step3": "Paste the script snippet into your site’s HTML just before the closing '</body>' tag, replacing YOUR_TRACKING_ID with your Tracking ID.",
     "step4": "Deploy your site. When AI crawlers visit, activity will appear on that site’s Activity page.",
     "snippetLabel": "Script snippet",
     "snippetHint": "Host tracker.js where your site can load it, and keep data-site-id set to your Tracking ID."

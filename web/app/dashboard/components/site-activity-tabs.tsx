@@ -33,8 +33,8 @@ const TAB_ICONS: Record<
 
 function tabClassName(selected: boolean): string {
   return selected
-    ? "inline-flex items-center gap-1.5 border-b-2 border-zinc-900 px-4 py-2.5 text-sm font-medium text-zinc-900 dark:border-zinc-50 dark:text-zinc-50"
-    : "inline-flex items-center gap-1.5 border-b-2 border-transparent px-4 py-2.5 text-sm font-medium text-zinc-500 transition hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50";
+    ? "inline-flex items-center gap-1.5 border-b-2 border-brand px-4 py-2.5 text-sm font-medium text-brand"
+    : "inline-flex items-center gap-1.5 border-b-2 border-transparent px-4 py-2.5 text-sm font-medium text-zinc-500 transition hover:text-zinc-900";
 }
 
 export function SiteActivityTabs({
@@ -56,7 +56,7 @@ export function SiteActivityTabs({
       <div
         role="tablist"
         aria-label={t("tabsLabel")}
-        className="flex gap-1 border-b border-zinc-200 dark:border-zinc-800"
+        className="flex gap-1 border-b border-zinc-200"
       >
         {tabs.map((tab) => {
           const selected = activeTab === tab.id;

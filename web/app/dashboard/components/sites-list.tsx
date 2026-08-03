@@ -132,14 +132,14 @@ export function SitesList({ initialSites, userId }: SitesListProps) {
                           value={domain}
                           onChange={(e) => setDomain(e.target.value)}
                           placeholder={t("domainPlaceholder")}
-                          className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-zinc-500 focus:ring-2 focus:ring-zinc-200 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50 dark:focus:border-zinc-500 dark:focus:ring-zinc-800"
+                          className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-brand focus:ring-2 focus:ring-brand-muted"
                         />
                       </div>
                       <div className="flex gap-2">
                         <button
                           type="submit"
                           disabled={saving}
-                          className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200"
+                          className="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           {saving ? t("creating") : t("createSite")}
                         </button>
