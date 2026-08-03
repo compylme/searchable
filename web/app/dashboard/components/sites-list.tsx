@@ -4,13 +4,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useState, type SubmitEvent } from "react";
+import { ArrowRight, Plus } from "lucide-react";
+import { createSite } from "@/lib/sites/sites";
+import type { Site } from "@/lib/sites/types";
 import { createClient } from "@/lib/supabase/client";
 
-export type Site = {
-  id: string;
-  domain: string;
-  created_at: string;
-};
+export type { Site };
 
 type SitesListProps = {
   initialSites: Site[];
@@ -37,27 +36,19 @@ export function SitesList({ initialSites, userId }: SitesListProps) {
     }
 
     setSaving(true);
-    const supabase = createClient();
-    const { data, error: insertError } = await supabase
-      .from("sites")
-      .insert({ domain: trimmed, user_id: userId })
-      .select("id, domain, created_at")
-      .single();
-
+    const result = await createSite(createClient(), userId, trimmed);
     setSaving(false);
 
-    if (insertError) {
+    if (result.error) {
       setError(
-        insertError.code === "23505"
+        result.error.code === "23505"
           ? t("duplicateDomain")
-          : insertError.message,
+          : result.error.message,
       );
       return;
     }
 
-    if (data) {
-      setSites((prev) => [...prev, data]);
-    }
+    setSites((prev) => [...prev, result.site]);
     setDomain("");
     setAdding(false);
     router.refresh();
@@ -116,9 +107,10 @@ export function SitesList({ initialSites, userId }: SitesListProps) {
                 <td className="px-6 py-4">
                   <Link
                     href={`/dashboard/sites/${site.id}`}
-                    className="font-medium text-zinc-900 underline-offset-4 hover:underline dark:text-zinc-50"
+                    className="inline-flex items-center gap-1 font-medium text-zinc-900 underline-offset-4 hover:underline dark:text-zinc-50"
                   >
                     {t("viewActivity")}
+                    <ArrowRight aria-hidden="true" className="h-3.5 w-3.5" />
                   </Link>
                 </td>
               </tr>
@@ -178,8 +170,9 @@ export function SitesList({ initialSites, userId }: SitesListProps) {
                   <button
                     type="button"
                     onClick={() => setAdding(true)}
-                    className="w-full rounded-lg border border-dashed border-zinc-300 px-4 py-3 text-sm font-medium text-zinc-600 transition hover:border-zinc-400 hover:bg-zinc-50 hover:text-zinc-900 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-zinc-500 dark:hover:bg-zinc-900 dark:hover:text-zinc-50"
+                    className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-zinc-300 px-4 py-3 text-sm font-medium text-zinc-600 transition hover:border-zinc-400 hover:bg-zinc-50 hover:text-zinc-900 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-zinc-500 dark:hover:bg-zinc-900 dark:hover:text-zinc-50"
                   >
+                    <Plus aria-hidden="true" className="h-4 w-4" />
                     {t("addSite")}
                   </button>
                 )}
