@@ -3,7 +3,13 @@ name: Tests
 on:
   push:
     branches: [main, master]
+    paths-ignore:
+      - "web/**"
+      - ".github/workflows/web-tests.yml"
   pull_request:
+    paths-ignore:
+      - "web/**"
+      - ".github/workflows/web-tests.yml"
 
 jobs:
   test:
