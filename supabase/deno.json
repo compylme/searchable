@@ -1,0 +1,12 @@
+{
+  "imports": {
+    "@std/assert": "jsr:@std/assert@^1",
+    "@supabase/supabase-js": "npm:@supabase/supabase-js@^2"
+  },
+  "tasks": {
+    "test": "bash -c 'eval \"$(supabase status -o env 2>/dev/null | sed s/^/export\\ /)\" && deno test functions/track/tests/ --allow-net --allow-env --allow-read'",
+    "test:unit": "deno test functions/track/tests/unit/ --allow-env --allow-read --allow-net",
+    "test:integration": "bash -c 'eval \"$(supabase status -o env 2>/dev/null | sed s/^/export\\ /)\" && deno test functions/track/tests/integration/ --allow-net --allow-env --allow-read'",
+    "test:e2e": "bash -c 'eval \"$(supabase status -o env 2>/dev/null | sed s/^/export\\ /)\" && deno test functions/track/tests/e2e/ --allow-net --allow-env --allow-read'"
+  }
+}
