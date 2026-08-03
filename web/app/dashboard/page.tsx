@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { DashboardHeader } from "./components/dashboard-header";
 import { ProfileCard } from "./components/profile-card";
 import { SitesList, type Site } from "./components/sites-list";
+import { TrackingSetup } from "./components/tracking-setup";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -28,6 +29,7 @@ export default async function DashboardPage() {
           userId={user.id}
           createdAt={user.created_at}
         />
+        <TrackingSetup />
         <SitesList
           initialSites={(sites ?? []) as Site[]}
           userId={user.id}
