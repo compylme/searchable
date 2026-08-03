@@ -7,7 +7,11 @@ export async function POST(request: NextRequest) {
 
   const upstream = await fetch(SUPABASE_TRACK_URL, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "User-Agent": request.headers.get("user-agent") ?? "",
+      "X-Forwarded-For": request.headers.get("x-forwarded-for") ?? "",
+    },
     body,
   });
 
