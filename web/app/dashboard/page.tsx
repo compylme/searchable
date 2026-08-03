@@ -1,8 +1,10 @@
 import { redirect } from "next/navigation";
+import { listSites } from "@/lib/sites/sites";
 import { createClient } from "@/lib/supabase/server";
 import { DashboardHeader } from "./components/dashboard-header";
 import { ProfileCard } from "./components/profile-card";
-import { SitesList, type Site } from "./components/sites-list";
+import { SitesList } from "./components/sites-list";
+import { TrackingSetup } from "./components/tracking-setup";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -14,10 +16,7 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  const { data: sites } = await supabase
-    .from("sites")
-    .select("id, domain, created_at")
-    .order("created_at", { ascending: true });
+  const sites = await listSites(supabase);
 
   return (
     <main className="flex flex-1 flex-col px-4 py-12">
@@ -28,10 +27,8 @@ export default async function DashboardPage() {
           userId={user.id}
           createdAt={user.created_at}
         />
-        <SitesList
-          initialSites={(sites ?? []) as Site[]}
-          userId={user.id}
-        />
+        <TrackingSetup />
+        <SitesList initialSites={sites} userId={user.id} />
       </div>
     </main>
   );

@@ -1,4 +1,6 @@
 import { notFound, redirect } from "next/navigation";
+import { getSiteAnalytics } from "@/lib/analytics/site-analytics";
+import { getSite } from "@/lib/sites/sites";
 import { createClient } from "@/lib/supabase/server";
 import { SiteActivity } from "../../components/site-activity";
 
@@ -19,15 +21,19 @@ export default async function SiteActivityPage({
     redirect("/login");
   }
 
-  const { data: site } = await supabase
-    .from("sites")
-    .select("id, domain, created_at")
-    .eq("id", id)
-    .maybeSingle();
+  const site = await getSite(supabase, id);
 
   if (!site) {
     notFound();
   }
 
-  return <SiteActivity domain={site.domain} siteId={site.id} />;
+  const analytics = await getSiteAnalytics(supabase, site.id);
+
+  return (
+    <SiteActivity
+      domain={site.domain}
+      siteId={site.id}
+      analytics={analytics}
+    />
+  );
 }

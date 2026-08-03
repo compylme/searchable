@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { User } from "lucide-react";
 
 type ProfileCardProps = {
   email: string | undefined;
@@ -15,7 +16,8 @@ export async function ProfileCard({
 
   return (
     <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-      <h2 className="mb-4 text-sm font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+      <h2 className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+        <User aria-hidden="true" className="h-4 w-4" />
         {t("profile")}
       </h2>
       <dl className="grid gap-4 sm:grid-cols-3">
