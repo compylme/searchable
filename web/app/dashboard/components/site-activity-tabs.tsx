@@ -17,6 +17,7 @@ import { TopPagesTable } from "./top-pages-table";
 type TabId = "overview" | "platforms" | "topPages" | "activityLog";
 
 type SiteActivityTabsProps = {
+  domain: string;
   analytics: SiteAnalytics;
 };
 
@@ -30,7 +31,10 @@ const TAB_ICONS: Record<
   activityLog: ScrollText,
 };
 
-export function SiteActivityTabs({ analytics }: SiteActivityTabsProps) {
+export function SiteActivityTabs({
+  domain,
+  analytics,
+}: SiteActivityTabsProps) {
   const t = useTranslations("SiteActivity");
   const [activeTab, setActiveTab] = useState<TabId>("overview");
 
@@ -114,7 +118,7 @@ export function SiteActivityTabs({ analytics }: SiteActivityTabsProps) {
           hidden={activeTab !== "activityLog"}
         >
           {activeTab === "activityLog" && (
-            <ActivityLog events={analytics.activityLog} />
+            <ActivityLog domain={domain} events={analytics.activityLog} />
           )}
         </div>
       </div>

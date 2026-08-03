@@ -5,6 +5,7 @@ export type CrawlerEventRow = {
   bot_type: string;
   page_path: string | null;
   page_url: string;
+  user_agent: string;
 };
 
 export type OverviewStats = {
@@ -34,8 +35,10 @@ export type ActivityLogEvent = {
   receivedAt: string;
   botName: string;
   platform: string;
+  botType: string;
   pagePath: string;
   pageUrl: string;
+  userAgent: string;
 };
 
 export type SiteAnalytics = {

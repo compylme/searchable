@@ -1,8 +1,14 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { flushSync } from "react-dom";
 import { useTranslations } from "next-intl";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight, Download, Loader2 } from "lucide-react";
+import {
+  activityLogCsvFilename,
+  downloadCsv,
+  toActivityLogCsv,
+} from "@/lib/analytics/export-csv";
 import type { ActivityLogEvent } from "@/lib/analytics/types";
 
 type PresetFilter = "today" | "week" | "month" | "year" | null;
@@ -14,6 +20,7 @@ type MonthGroup = {
 };
 
 type ActivityLogProps = {
+  domain: string;
   events: ActivityLogEvent[];
 };
 
@@ -108,7 +115,7 @@ function toggleInSet(current: Set<string>, value: string): Set<string> {
   return next;
 }
 
-export function ActivityLog({ events }: ActivityLogProps) {
+export function ActivityLog({ domain, events }: ActivityLogProps) {
   const t = useTranslations("SiteActivity");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [preset, setPreset] = useState<PresetFilter>(null);
@@ -117,6 +124,7 @@ export function ActivityLog({ events }: ActivityLogProps) {
     new Set(),
   );
   const [expandedMonths, setExpandedMonths] = useState<Set<string>>(new Set());
+  const [exporting, setExporting] = useState(false);
 
   const botOptions = useMemo(
     () => distinctSorted(events.map((event) => event.botName)),
@@ -182,6 +190,27 @@ export function ActivityLog({ events }: ActivityLogProps) {
     setPreset(null);
     setSelectedBots(new Set());
     setSelectedPlatforms(new Set());
+  }
+
+  async function handleExportCsv() {
+    if (exporting || filteredEvents.length === 0) return;
+
+    flushSync(() => {
+      setExporting(true);
+    });
+
+    try {
+      // Wait for the busy UI (spinner + wait cursor) to paint before generating.
+      await new Promise<void>((resolve) => {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => resolve());
+        });
+      });
+      const csv = toActivityLogCsv(filteredEvents);
+      downloadCsv(activityLogCsvFilename(domain), csv);
+    } finally {
+      setExporting(false);
+    }
   }
 
   function toggleMonth(key: string) {
@@ -325,6 +354,27 @@ export function ActivityLog({ events }: ActivityLogProps) {
             </div>
           </div>
         )}
+      </div>
+
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          {t("showingEvents", { count: filteredEvents.length })}
+        </p>
+        <button
+          type="button"
+          onClick={handleExportCsv}
+          disabled={exporting || filteredEvents.length === 0}
+          aria-busy={exporting}
+          aria-label={exporting ? t("exportingCsv") : t("exportCsv")}
+          className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50 disabled:opacity-60 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
+        >
+          {exporting ? (
+            <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
+          ) : (
+            <Download aria-hidden="true" className="h-4 w-4" />
+          )}
+          {exporting ? t("exportingCsv") : t("exportCsv")}
+        </button>
       </div>
 
       {monthGroups.length === 0 ? (

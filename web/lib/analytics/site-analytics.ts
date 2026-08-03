@@ -16,7 +16,9 @@ async function fetchSiteEvents(
 ): Promise<CrawlerEventRow[]> {
   const { data, error } = await supabase
     .from("crawler_events")
-    .select("received_at, bot_name, platform, bot_type, page_path, page_url")
+    .select(
+      "received_at, bot_name, platform, bot_type, page_path, page_url, user_agent",
+    )
     .eq("site_id", siteId)
     .order("received_at", { ascending: false });
 
@@ -157,8 +159,10 @@ export function computeActivityLog(
       receivedAt: event.received_at,
       botName: normalizeNullable(event.bot_name),
       platform: normalizeNullable(event.platform),
+      botType: event.bot_type || UNKNOWN,
       pagePath: normalizePagePath(event.page_path, event.page_url),
       pageUrl: event.page_url,
+      userAgent: event.user_agent || UNKNOWN,
     }))
     .sort((a, b) => b.receivedAt.localeCompare(a.receivedAt));
 }

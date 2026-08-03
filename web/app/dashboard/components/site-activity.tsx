@@ -38,7 +38,7 @@ export async function SiteActivity({
           </p>
         </div>
 
-        <SiteActivityTabs analytics={analytics} />
+        <SiteActivityTabs domain={domain} analytics={analytics} />
       </div>
     </main>
   );

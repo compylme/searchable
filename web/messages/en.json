@@ -108,6 +108,9 @@
     "logPage": "Page",
     "logDate": "Date",
     "logTime": "Time",
-    "logEvents": "events"
+    "logEvents": "events",
+    "showingEvents": "Showing {count} events",
+    "exportCsv": "Export CSV",
+    "exportingCsv": "Exporting CSV…"
   }
 }
