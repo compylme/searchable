@@ -2,6 +2,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type {
   ActivityLogEvent,
   ActivityPeriod,
+  ActivityTrendDelta,
+  ActivityTrendPoint,
   CrawlerEventRow,
   OverviewStats,
   PeriodActivityPoint,
@@ -11,11 +13,14 @@ import type {
 } from "./types";
 
 const UNKNOWN = "unknown";
+const DEFAULT_TREND_WEEKS = 12;
+const DAY_MS = 24 * 60 * 60 * 1000;
+const WEEK_MS = 7 * DAY_MS;
 
 const ACTIVITY_PERIODS: { period: ActivityPeriod; ms: number }[] = [
-  { period: "24h", ms: 24 * 60 * 60 * 1000 },
-  { period: "7d", ms: 7 * 24 * 60 * 60 * 1000 },
-  { period: "30d", ms: 30 * 24 * 60 * 60 * 1000 },
+  { period: "24h", ms: DAY_MS },
+  { period: "7d", ms: WEEK_MS },
+  { period: "30d", ms: 30 * DAY_MS },
 ];
 
 async function fetchSiteEvents(
@@ -242,6 +247,130 @@ export function computePeriodActivity(
   }));
 }
 
+function startOfWeekMonday(date: Date): Date {
+  const next = new Date(
+    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
+  );
+  const day = next.getUTCDay();
+  const diff = day === 0 ? 6 : day - 1;
+  next.setUTCDate(next.getUTCDate() - diff);
+  return next;
+}
+
+function toIsoDate(date: Date): string {
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(date.getUTCDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function formatWeekLabel(date: Date): string {
+  return date.toLocaleString(undefined, {
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  });
+}
+
+function addUtcDays(date: Date, days: number): Date {
+  const next = new Date(date);
+  next.setUTCDate(next.getUTCDate() + days);
+  return next;
+}
+
+export function computeActivityTrend(
+  events: CrawlerEventRow[],
+  options?: { weeks?: number; now?: Date },
+): ActivityTrendPoint[] {
+  if (events.length === 0) {
+    return [];
+  }
+
+  const weeks = options?.weeks ?? DEFAULT_TREND_WEEKS;
+  const now = options?.now ?? new Date();
+  const currentWeekStart = startOfWeekMonday(now);
+  const windowStart = addUtcDays(currentWeekStart, -(weeks - 1) * 7);
+
+  const counts = new Map<string, number>();
+  for (let i = 0; i < weeks; i += 1) {
+    counts.set(toIsoDate(addUtcDays(windowStart, i * 7)), 0);
+  }
+
+  for (const event of events) {
+    const received = new Date(event.received_at);
+    if (Number.isNaN(received.getTime())) {
+      continue;
+    }
+
+    const key = toIsoDate(startOfWeekMonday(received));
+    if (!counts.has(key)) {
+      continue;
+    }
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+
+  const points: ActivityTrendPoint[] = [];
+  for (let i = 0; i < weeks; i += 1) {
+    const weekStart = addUtcDays(windowStart, i * 7);
+    const key = toIsoDate(weekStart);
+    points.push({
+      date: key,
+      label: formatWeekLabel(weekStart),
+      crawlCount: counts.get(key) ?? 0,
+    });
+  }
+
+  return points;
+}
+
+export function computeActivityTrendDelta(
+  events: CrawlerEventRow[],
+  options?: { now?: Date },
+): ActivityTrendDelta | null {
+  if (events.length === 0) {
+    return null;
+  }
+
+  const nowMs = (options?.now ?? new Date()).getTime();
+  let current = 0;
+  let previous = 0;
+
+  for (const event of events) {
+    const receivedMs = new Date(event.received_at).getTime();
+    if (Number.isNaN(receivedMs)) {
+      continue;
+    }
+
+    const ageMs = nowMs - receivedMs;
+    if (ageMs < 0) {
+      continue;
+    }
+
+    if (ageMs <= WEEK_MS) {
+      current += 1;
+    } else if (ageMs <= WEEK_MS * 2) {
+      previous += 1;
+    }
+  }
+
+  if (current === 0 && previous === 0) {
+    return { direction: "flat", percent: 0 };
+  }
+
+  if (previous === 0) {
+    return { direction: "up", percent: null };
+  }
+
+  const percent = Math.round(((current - previous) / previous) * 100);
+  if (percent > 0) {
+    return { direction: "up", percent };
+  }
+  if (percent < 0) {
+    return { direction: "down", percent: Math.abs(percent) };
+  }
+  return { direction: "flat", percent: 0 };
+}
+
 export async function getOverviewStats(
   supabase: SupabaseClient,
   siteId: string,
@@ -279,5 +408,7 @@ export async function getSiteAnalytics(
     topPages: computeTopPages(events),
     activityLog: computeActivityLog(events),
     periodActivity: computePeriodActivity(events),
+    activityTrend: computeActivityTrend(events),
+    activityTrendDelta: computeActivityTrendDelta(events),
   };
 }

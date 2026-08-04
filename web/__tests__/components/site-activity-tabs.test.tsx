@@ -12,11 +12,15 @@ vi.mock("recharts", () => ({
   BarChart: ({ children }: { children?: React.ReactNode }) => (
     <div>{children}</div>
   ),
+  LineChart: ({ children }: { children?: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
   CartesianGrid: () => null,
   XAxis: () => null,
   YAxis: () => null,
   Tooltip: () => null,
   Bar: () => null,
+  Line: () => null,
 }));
 
 describe("SiteActivityTabs", () => {

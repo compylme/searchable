@@ -1,5 +1,7 @@
 import type {
   ActivityLogEvent,
+  ActivityTrendDelta,
+  ActivityTrendPoint,
   CrawlerEventRow,
   OverviewStats,
   PeriodActivityPoint,
@@ -160,10 +162,22 @@ export const samplePeriodActivity: PeriodActivityPoint[] = [
   { period: "30d", crawlCount: 4 },
 ];
 
+export const sampleActivityTrend: ActivityTrendPoint[] = [
+  { date: "2026-06-08", label: "Jun 8", crawlCount: 3 },
+  { date: "2026-06-15", label: "Jun 15", crawlCount: 1 },
+];
+
+export const sampleActivityTrendDelta: ActivityTrendDelta = {
+  direction: "up",
+  percent: null,
+};
+
 export const sampleSiteAnalytics: SiteAnalytics = {
   overview: sampleOverviewStats,
   platforms: samplePlatforms,
   topPages: sampleTopPages,
   activityLog: sampleActivityLogEvents,
   periodActivity: samplePeriodActivity,
+  activityTrend: sampleActivityTrend,
+  activityTrendDelta: sampleActivityTrendDelta,
 };

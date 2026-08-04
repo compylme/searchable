@@ -41,6 +41,11 @@ describe("site analytics services", () => {
       { period: "7d", crawlCount: 3 },
       { period: "30d", crawlCount: 4 },
     ]);
+    expect(analytics.activityTrend).toHaveLength(12);
+    expect(analytics.activityTrendDelta).toEqual({
+      direction: "up",
+      percent: null,
+    });
   });
 
   it("throws when fetching crawler events fails", async () => {
@@ -72,5 +77,7 @@ describe("site analytics services", () => {
     expect(analytics.topPages).toEqual([]);
     expect(analytics.activityLog).toEqual([]);
     expect(analytics.periodActivity).toEqual([]);
+    expect(analytics.activityTrend).toEqual([]);
+    expect(analytics.activityTrendDelta).toBeNull();
   });
 });

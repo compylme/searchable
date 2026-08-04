@@ -52,10 +52,23 @@ export type PeriodActivityPoint = {
   crawlCount: number;
 };
 
+export type ActivityTrendPoint = {
+  date: string;
+  label: string;
+  crawlCount: number;
+};
+
+export type ActivityTrendDelta = {
+  direction: "up" | "down" | "flat";
+  percent: number | null;
+};
+
 export type SiteAnalytics = {
   overview: OverviewStats;
   platforms: PlatformBreakdownItem[];
   topPages: TopPageItem[];
   activityLog: ActivityLogEvent[];
   periodActivity: PeriodActivityPoint[];
+  activityTrend: ActivityTrendPoint[];
+  activityTrendDelta: ActivityTrendDelta | null;
 };

@@ -11,11 +11,12 @@ import {
 } from "lucide-react";
 import type { SiteAnalytics } from "@/lib/analytics/types";
 import { ActivityLog } from "./activity-log";
+import { ActivityTrendChart } from "./activity-trend-chart";
 import { OverviewStats } from "./overview-stats";
+import { PeriodActivityChart } from "./period-activity-chart";
 import { PlatformBreakdown } from "./platform-breakdown";
 import { SiteSettings } from "./site-settings";
 import { TopPagesTable } from "./top-pages-table";
-import { PeriodActivityChart } from "./period-activity-chart";
 
 type TabId = "overview" | "platforms" | "topPages" | "activityLog" | "settings";
 
@@ -98,6 +99,12 @@ export function SiteActivityTabs({
               <OverviewStats stats={analytics.overview} />
               {analytics.periodActivity.length > 0 && (
                 <PeriodActivityChart data={analytics.periodActivity} />
+              )}
+              {analytics.activityTrend.length > 0 && (
+                <ActivityTrendChart
+                  data={analytics.activityTrend}
+                  delta={analytics.activityTrendDelta}
+                />
               )}
             </div>
           )}
