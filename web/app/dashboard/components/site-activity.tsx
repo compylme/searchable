@@ -36,7 +36,12 @@ export async function SiteActivity({
           <p className="mt-1 font-mono text-xs text-zinc-500">{siteId}</p>
         </div>
 
-        <SiteActivityTabs domain={domain} analytics={analytics} />
+        <SiteActivityTabs
+          domain={domain}
+          siteId={siteId}
+          analytics={analytics}
+        />
+
       </div>
     </main>
   );

@@ -23,7 +23,11 @@ describe("SiteActivityTabs", () => {
   it("switches panels when tabs are clicked", async () => {
     const user = userEvent.setup();
     renderWithIntl(
-      <SiteActivityTabs domain="example.com" analytics={sampleSiteAnalytics} />,
+      <SiteActivityTabs
+        domain="example.com"
+        siteId="site-1"
+        analytics={sampleSiteAnalytics}
+      />,
     );
 
     await user.click(screen.getByRole("tab", { name: /Top pages/i }));

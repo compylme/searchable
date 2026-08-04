@@ -3,14 +3,9 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { ChevronDown, ChevronRight, CircleHelp } from "lucide-react";
+import { buildTrackingSnippet } from "@/lib/tracking/snippet";
 
-const SNIPPET = `<script>
-(function(s){
-  var d=document,g=d.createElement('script');
-  g.async=1;g.src='https://trkaijnxdulrvtgcvddn.supabase.co/functions/v1/track?sid='+s;
-  d.head.appendChild(g);
-})('YOUR_TRACKING_ID');
-</script>`;
+const SNIPPET = buildTrackingSnippet("YOUR_TRACKING_ID");
 
 export function TrackingSetup() {
   const t = useTranslations("TrackingSetup");
