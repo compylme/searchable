@@ -161,7 +161,7 @@ export async function getLatestCrawlerEvent(siteId: string) {
     .from("crawler_events")
     .select("*")
     .eq("site_id", siteId)
-    .order("received_at", { ascending: false })
+    .order("timestamp", { ascending: false })
     .limit(1)
     .maybeSingle();
 

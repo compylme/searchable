@@ -116,7 +116,7 @@ on conflict (user_id, domain) do nothing;
 
 insert into public.crawler_events (
   site_id,
-  received_at,
+  "timestamp",
   user_agent,
   bot_name,
   platform,

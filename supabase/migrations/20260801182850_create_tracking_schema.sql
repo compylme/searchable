@@ -13,7 +13,7 @@ create table public.sites (
 create table public.crawler_events(
     id uuid primary key default gen_random_uuid(),
     site_id uuid not null references public.sites(id) on delete cascade,
-    received_at timestamptz not null default now(),
+    "timestamp" timestamptz not null default now(),
     user_agent text not null,
     bot_name varchar(100),
     platform varchar(50),
@@ -27,7 +27,7 @@ create table public.crawler_events(
     )
 );
 
-create index idx_events_site_time on public.crawler_events(site_id, received_at desc);
+create index idx_events_site_time on public.crawler_events(site_id, "timestamp" desc);
 
 create index idx_events_site_platform on public.crawler_events(site_id, platform);
 

@@ -30,10 +30,10 @@ async function fetchSiteEvents(
   const { data, error } = await supabase
     .from("crawler_events")
     .select(
-      "received_at, bot_name, platform, bot_type, page_path, page_url, user_agent, ip_hash",
+      "timestamp, bot_name, platform, bot_type, page_path, page_url, user_agent, ip_hash",
     )
     .eq("site_id", siteId)
-    .order("received_at", { ascending: false });
+    .order("timestamp", { ascending: false });
 
   if (error) {
     throw new Error(`Failed to load crawler events: ${error.message}`);
@@ -101,7 +101,7 @@ export function computeOverviewStats(events: CrawlerEventRow[]): OverviewStats {
     bots.add(normalizeNullable(event.bot_name));
     platformCounts.set(platform, (platformCounts.get(platform) ?? 0) + 1);
     pageCounts.set(pagePath, (pageCounts.get(pagePath) ?? 0) + 1);
-    lastSeenAt = laterTimestamp(lastSeenAt, event.received_at);
+    lastSeenAt = laterTimestamp(lastSeenAt, event.timestamp);
   }
 
   return {
@@ -130,7 +130,7 @@ export function computePlatformBreakdown(
       existing.crawlCount += 1;
       existing.lastSeenAt = laterTimestamp(
         existing.lastSeenAt,
-        event.received_at,
+        event.timestamp,
       );
       continue;
     }
@@ -140,7 +140,7 @@ export function computePlatformBreakdown(
       botName,
       botType: event.bot_type || UNKNOWN,
       crawlCount: 1,
-      lastSeenAt: event.received_at,
+      lastSeenAt: event.timestamp,
     });
   }
 
@@ -196,7 +196,7 @@ export function computeActivityLog(
 ): ActivityLogEvent[] {
   return events
     .map((event) => ({
-      receivedAt: event.received_at,
+      receivedAt: event.timestamp,
       botName: normalizeNullable(event.bot_name),
       platform: normalizeNullable(event.platform),
       botType: event.bot_type || UNKNOWN,
@@ -224,7 +224,7 @@ export function computePeriodActivity(
   };
 
   for (const event of events) {
-    const receivedMs = new Date(event.received_at).getTime();
+    const receivedMs = new Date(event.timestamp).getTime();
     if (Number.isNaN(receivedMs)) {
       continue;
     }
@@ -297,7 +297,7 @@ export function computeActivityTrend(
   }
 
   for (const event of events) {
-    const received = new Date(event.received_at);
+    const received = new Date(event.timestamp);
     if (Number.isNaN(received.getTime())) {
       continue;
     }
@@ -336,7 +336,7 @@ export function computeActivityTrendDelta(
   let previous = 0;
 
   for (const event of events) {
-    const receivedMs = new Date(event.received_at).getTime();
+    const receivedMs = new Date(event.timestamp).getTime();
     if (Number.isNaN(receivedMs)) {
       continue;
     }

@@ -7,10 +7,10 @@ describe("computePeriodActivity", () => {
     const now = new Date("2026-06-17T12:00:00.000Z");
     const result = computePeriodActivity(
       [
-        makeCrawlerEvent({ received_at: "2026-06-17T06:00:00.000Z" }), // 6h
-        makeCrawlerEvent({ received_at: "2026-06-15T12:00:00.000Z" }), // 2d
-        makeCrawlerEvent({ received_at: "2026-06-01T12:00:00.000Z" }), // 16d
-        makeCrawlerEvent({ received_at: "2026-05-01T12:00:00.000Z" }), // 47d
+        makeCrawlerEvent({ timestamp: "2026-06-17T06:00:00.000Z" }), // 6h
+        makeCrawlerEvent({ timestamp: "2026-06-15T12:00:00.000Z" }), // 2d
+        makeCrawlerEvent({ timestamp: "2026-06-01T12:00:00.000Z" }), // 16d
+        makeCrawlerEvent({ timestamp: "2026-05-01T12:00:00.000Z" }), // 47d
       ],
       { now },
     );

@@ -1,5 +1,5 @@
 export type CrawlerEventRow = {
-  received_at: string;
+  timestamp: string;
   bot_name: string | null;
   platform: string | null;
   bot_type: string;

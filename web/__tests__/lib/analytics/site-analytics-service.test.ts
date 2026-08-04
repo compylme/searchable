@@ -29,7 +29,7 @@ describe("site analytics services", () => {
       "site-1",
     );
     expect(builders.get("crawler_events")?.order).toHaveBeenCalledWith(
-      "received_at",
+      "timestamp",
       { ascending: false },
     );
     expect(analytics.overview.totalCrawls).toBe(4);

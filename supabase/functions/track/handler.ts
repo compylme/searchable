@@ -41,7 +41,7 @@ export async function handleRequest(request: Request): Promise<Response> {
       user_agent: userAgent,
       page_url: pageUrl.href,
       page_path: pageUrl.pathname,
-      received_at: new Date().toISOString(),
+      timestamp: new Date().toISOString(),
       bot_name: classification.bot_name,
       platform: classification.platform,
       bot_type: classification.bot_type,

@@ -15,7 +15,7 @@ export function makeCrawlerEvent(
   overrides: Partial<CrawlerEventRow> = {},
 ): CrawlerEventRow {
   return {
-    received_at: "2026-06-15T12:00:00.000Z",
+    timestamp: "2026-06-15T12:00:00.000Z",
     bot_name: "GPTBot",
     platform: "OpenAI",
     bot_type: "ai",
@@ -29,21 +29,21 @@ export function makeCrawlerEvent(
 
 export const sampleEvents: CrawlerEventRow[] = [
   makeCrawlerEvent({
-    received_at: "2026-06-15T14:00:00.000Z",
+    timestamp: "2026-06-15T14:00:00.000Z",
     bot_name: "GPTBot",
     platform: "OpenAI",
     page_path: "/blog",
     page_url: "https://example.com/blog",
   }),
   makeCrawlerEvent({
-    received_at: "2026-06-14T10:00:00.000Z",
+    timestamp: "2026-06-14T10:00:00.000Z",
     bot_name: "GPTBot",
     platform: "OpenAI",
     page_path: "/pricing",
     page_url: "https://example.com/pricing",
   }),
   makeCrawlerEvent({
-    received_at: "2026-06-13T08:00:00.000Z",
+    timestamp: "2026-06-13T08:00:00.000Z",
     bot_name: "ClaudeBot",
     platform: "Anthropic",
     bot_type: "ai",
@@ -52,7 +52,7 @@ export const sampleEvents: CrawlerEventRow[] = [
     user_agent: "ClaudeBot/1.0",
   }),
   makeCrawlerEvent({
-    received_at: "2026-05-20T09:00:00.000Z",
+    timestamp: "2026-05-20T09:00:00.000Z",
     bot_name: "Googlebot",
     platform: "Google",
     bot_type: "search",
