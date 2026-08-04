@@ -17,9 +17,15 @@ vi.mock("@/lib/supabase/client", () => ({
   createClient: () => ({}),
 }));
 
-vi.mock("@/lib/sites/sites", () => ({
-  createSite: (...args: unknown[]) => createSiteMock(...args),
-}));
+vi.mock("@/lib/sites/sites", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/sites/sites")>(
+    "@/lib/sites/sites",
+  );
+  return {
+    ...actual,
+    createSite: (...args: unknown[]) => createSiteMock(...args),
+  };
+});
 
 describe("SitesList", () => {
   beforeEach(() => {
@@ -56,6 +62,20 @@ describe("SitesList", () => {
       expect(screen.getByText("new.com")).toBeInTheDocument();
       expect(refresh).toHaveBeenCalledOnce();
     });
+  });
+
+  it("rejects invalid domains before creating", async () => {
+    const user = userEvent.setup();
+    renderWithIntl(<SitesList initialSites={[]} userId="user-1" />);
+
+    await user.click(screen.getByRole("button", { name: /Add a new site/i }));
+    await user.type(screen.getByLabelText("Domain"), "not a url");
+    await user.click(screen.getByRole("button", { name: "Create site" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      /Enter a valid domain or URL/i,
+    );
+    expect(createSiteMock).not.toHaveBeenCalled();
   });
 
   it("maps duplicate key errors to a friendly message", async () => {

@@ -62,6 +62,7 @@
     "cancel": "Cancel",
     "addSite": "Add a new site",
     "enterDomain": "Enter a domain.",
+    "invalidDomain": "Enter a valid domain or URL (e.g. example.com or https://example.com).",
     "duplicateDomain": "You already have a site with that domain.",
     "copyId": "Copy tracking ID"
   },
