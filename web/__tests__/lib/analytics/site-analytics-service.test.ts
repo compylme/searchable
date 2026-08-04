@@ -36,13 +36,11 @@ describe("site analytics services", () => {
     expect(analytics.platforms).toHaveLength(3);
     expect(analytics.topPages).toHaveLength(3);
     expect(analytics.activityLog).toHaveLength(4);
-    expect(analytics.weeklyActivity).toHaveLength(12);
-    expect(
-      analytics.weeklyActivity.reduce(
-        (sum, point) => sum + point.crawlCount,
-        0,
-      ),
-    ).toBe(4);
+    expect(analytics.periodActivity).toEqual([
+      { period: "24h", crawlCount: 0 },
+      { period: "7d", crawlCount: 3 },
+      { period: "30d", crawlCount: 4 },
+    ]);
   });
 
   it("throws when fetching crawler events fails", async () => {
@@ -73,6 +71,6 @@ describe("site analytics services", () => {
     expect(analytics.platforms).toEqual([]);
     expect(analytics.topPages).toEqual([]);
     expect(analytics.activityLog).toEqual([]);
-    expect(analytics.weeklyActivity).toEqual([]);
+    expect(analytics.periodActivity).toEqual([]);
   });
 });

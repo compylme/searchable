@@ -45,9 +45,10 @@ export type ActivityLogEvent = {
   ipHash: string | null;
 };
 
-export type WeeklyActivityPoint = {
-  weekStart: string;
-  label: string;
+export type ActivityPeriod = "24h" | "7d" | "30d";
+
+export type PeriodActivityPoint = {
+  period: ActivityPeriod;
   crawlCount: number;
 };
 
@@ -56,5 +57,5 @@ export type SiteAnalytics = {
   platforms: PlatformBreakdownItem[];
   topPages: TopPageItem[];
   activityLog: ActivityLogEvent[];
-  weeklyActivity: WeeklyActivityPoint[];
+  periodActivity: PeriodActivityPoint[];
 };

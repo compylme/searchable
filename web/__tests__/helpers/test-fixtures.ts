@@ -2,10 +2,10 @@ import type {
   ActivityLogEvent,
   CrawlerEventRow,
   OverviewStats,
+  PeriodActivityPoint,
   PlatformBreakdownItem,
   SiteAnalytics,
   TopPageItem,
-  WeeklyActivityPoint,
 } from "@/lib/analytics/types";
 import type { Site } from "@/lib/sites/types";
 
@@ -154,19 +154,10 @@ export const sampleTopPages: TopPageItem[] = [
   },
 ];
 
-export const sampleWeeklyActivity: WeeklyActivityPoint[] = [
-  { weekStart: "2026-04-06", label: "Apr 6", crawlCount: 0 },
-  { weekStart: "2026-04-13", label: "Apr 13", crawlCount: 0 },
-  { weekStart: "2026-04-20", label: "Apr 20", crawlCount: 0 },
-  { weekStart: "2026-04-27", label: "Apr 27", crawlCount: 0 },
-  { weekStart: "2026-05-04", label: "May 4", crawlCount: 0 },
-  { weekStart: "2026-05-11", label: "May 11", crawlCount: 0 },
-  { weekStart: "2026-05-18", label: "May 18", crawlCount: 1 },
-  { weekStart: "2026-05-25", label: "May 25", crawlCount: 0 },
-  { weekStart: "2026-06-01", label: "Jun 1", crawlCount: 0 },
-  { weekStart: "2026-06-08", label: "Jun 8", crawlCount: 3 },
-  { weekStart: "2026-06-15", label: "Jun 15", crawlCount: 0 },
-  { weekStart: "2026-06-22", label: "Jun 22", crawlCount: 0 },
+export const samplePeriodActivity: PeriodActivityPoint[] = [
+  { period: "24h", crawlCount: 0 },
+  { period: "7d", crawlCount: 3 },
+  { period: "30d", crawlCount: 4 },
 ];
 
 export const sampleSiteAnalytics: SiteAnalytics = {
@@ -174,5 +165,5 @@ export const sampleSiteAnalytics: SiteAnalytics = {
   platforms: samplePlatforms,
   topPages: sampleTopPages,
   activityLog: sampleActivityLogEvents,
-  weeklyActivity: sampleWeeklyActivity,
+  periodActivity: samplePeriodActivity,
 };

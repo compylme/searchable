@@ -1,16 +1,22 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type {
   ActivityLogEvent,
+  ActivityPeriod,
   CrawlerEventRow,
   OverviewStats,
+  PeriodActivityPoint,
   PlatformBreakdownItem,
   SiteAnalytics,
   TopPageItem,
-  WeeklyActivityPoint,
 } from "./types";
 
 const UNKNOWN = "unknown";
-const DEFAULT_WEEKLY_WINDOW = 12;
+
+const ACTIVITY_PERIODS: { period: ActivityPeriod; ms: number }[] = [
+  { period: "24h", ms: 24 * 60 * 60 * 1000 },
+  { period: "7d", ms: 7 * 24 * 60 * 60 * 1000 },
+  { period: "30d", ms: 30 * 24 * 60 * 60 * 1000 },
+];
 
 async function fetchSiteEvents(
   supabase: SupabaseClient,
@@ -197,81 +203,43 @@ export function computeActivityLog(
     .sort((a, b) => b.receivedAt.localeCompare(a.receivedAt));
 }
 
-function startOfWeekMonday(date: Date): Date {
-  const next = new Date(date);
-  next.setUTCHours(0, 0, 0, 0);
-  const day = next.getUTCDay();
-  const diff = day === 0 ? 6 : day - 1;
-  next.setUTCDate(next.getUTCDate() - diff);
-  return next;
-}
-
-function toIsoDate(date: Date): string {
-  const year = date.getUTCFullYear();
-  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
-  const day = String(date.getUTCDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
-
-function formatWeekLabel(date: Date): string {
-  return date.toLocaleString(undefined, {
-    month: "short",
-    day: "numeric",
-    timeZone: "UTC",
-  });
-}
-
-function addDays(date: Date, days: number): Date {
-  const next = new Date(date);
-  next.setUTCDate(next.getUTCDate() + days);
-  return next;
-}
-
-export function computeWeeklyActivity(
+export function computePeriodActivity(
   events: CrawlerEventRow[],
-  options?: { weeks?: number; now?: Date },
-): WeeklyActivityPoint[] {
+  options?: { now?: Date },
+): PeriodActivityPoint[] {
   if (events.length === 0) {
     return [];
   }
 
-  const weeks = options?.weeks ?? DEFAULT_WEEKLY_WINDOW;
-  const now = options?.now ?? new Date();
-  const currentWeekStart = startOfWeekMonday(now);
-  const windowStart = addDays(currentWeekStart, -(weeks - 1) * 7);
-
-  const counts = new Map<string, number>();
-  for (let i = 0; i < weeks; i += 1) {
-    const weekStart = addDays(windowStart, i * 7);
-    counts.set(toIsoDate(weekStart), 0);
-  }
+  const nowMs = (options?.now ?? new Date()).getTime();
+  const counts: Record<ActivityPeriod, number> = {
+    "24h": 0,
+    "7d": 0,
+    "30d": 0,
+  };
 
   for (const event of events) {
-    const received = new Date(event.received_at);
-    if (Number.isNaN(received.getTime())) {
+    const receivedMs = new Date(event.received_at).getTime();
+    if (Number.isNaN(receivedMs)) {
       continue;
     }
 
-    const weekStart = startOfWeekMonday(received);
-    const key = toIsoDate(weekStart);
-    if (!counts.has(key)) {
+    const ageMs = nowMs - receivedMs;
+    if (ageMs < 0) {
       continue;
     }
-    counts.set(key, (counts.get(key) ?? 0) + 1);
+
+    for (const { period, ms } of ACTIVITY_PERIODS) {
+      if (ageMs <= ms) {
+        counts[period] += 1;
+      }
+    }
   }
 
-  const points: WeeklyActivityPoint[] = [];
-  for (let i = 0; i < weeks; i += 1) {
-    const weekStart = addDays(windowStart, i * 7);
-    const key = toIsoDate(weekStart);
-    points.push({
-      weekStart: key,
-      label: formatWeekLabel(weekStart),
-      crawlCount: counts.get(key) ?? 0,
-    });
-  }
-
-  return points;
+  return ACTIVITY_PERIODS.map(({ period }) => ({
+    period,
+    crawlCount: counts[period],
+  }));
 }
 
 export async function getOverviewStats(
@@ -310,6 +278,6 @@ export async function getSiteAnalytics(
     platforms: computePlatformBreakdown(events),
     topPages: computeTopPages(events),
     activityLog: computeActivityLog(events),
-    weeklyActivity: computeWeeklyActivity(events),
+    periodActivity: computePeriodActivity(events),
   };
 }
