@@ -1,4 +1,5 @@
 import { assertEquals, assertExists } from "@std/assert";
+import { hashIp } from "../../utils/ip.ts";
 import {
   KNOWN_BOT_UA,
   TEST_PAGE_URL,
@@ -55,12 +56,15 @@ Deno.test({
       async () => {
         await clearCrawlerEvents();
 
+        const clientIp = "203.0.113.10";
+        const expectedHash = await hashIp(clientIp);
         const url = `${TRACK_ENDPOINT}?sid=${encodeURIComponent(seedData.siteId)}`;
         const response = await fetch(url, {
           method: "GET",
           headers: {
             "user-agent": KNOWN_BOT_UA,
             referer: TEST_PAGE_URL,
+            "x-forwarded-for": clientIp,
           },
         });
         const body = await response.text();
@@ -72,13 +76,15 @@ Deno.test({
           ),
           true,
         );
-        assertEquals(body, "void 0;");
+        assertEquals(response.headers.get("X-Ip-Hash"), expectedHash);
+        assertEquals(body, `void("${expectedHash}");`);
 
         const event = await getLatestCrawlerEvent(seedData.siteId);
         assertExists(event);
         assertEquals(event.bot_name, "GPTBot");
         assertEquals(event.site_id, seedData.siteId);
         assertEquals(event.page_url, TEST_PAGE_URL);
+        assertEquals(event.ip_hash, expectedHash);
       },
     );
 

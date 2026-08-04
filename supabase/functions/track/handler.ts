@@ -1,6 +1,8 @@
 import { createClient } from "@supabase/supabase-js"
 import {
   corsHeaders,
+  getClientIp,
+  hashIp,
   jsonResponse,
   RequestValidationError,
   requireEnvironmentVariable,
@@ -31,6 +33,9 @@ export async function handleRequest(request: Request): Promise<Response> {
     const classification = classifyCrawler(userAgent);
     const pageUrl = new URL(payload.page_url);
 
+    const clientIp = getClientIp(request);
+    const ipHash = clientIp ? await hashIp(clientIp) : null;
+
     const crawlerEvent = {
       site_id: payload.site_id,
       user_agent: userAgent,
@@ -40,6 +45,7 @@ export async function handleRequest(request: Request): Promise<Response> {
       bot_name: classification.bot_name,
       platform: classification.platform,
       bot_type: classification.bot_type,
+      ip_hash: ipHash,
     };
 
     const supabase = createClient(
@@ -61,7 +67,7 @@ export async function handleRequest(request: Request): Promise<Response> {
       return jsonResponse({ error: "Unable to record event" }, 500);
     }
 
-    return scriptResponse();
+    return scriptResponse(ipHash);
   } catch (error) {
     if (error instanceof RequestValidationError) {
       console.warn("Invalid tracking request", {

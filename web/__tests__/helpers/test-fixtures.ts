@@ -20,6 +20,7 @@ export function makeCrawlerEvent(
     page_path: "/blog",
     page_url: "https://example.com/blog",
     user_agent: "GPTBot/1.0",
+    ip_hash: null,
     ...overrides,
   };
 }
@@ -68,6 +69,7 @@ export const sampleActivityLogEvents: ActivityLogEvent[] = [
     pagePath: "/blog",
     pageUrl: "https://example.com/blog",
     userAgent: "GPTBot/1.0",
+    ipHash: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
   },
   {
     receivedAt: "2026-06-14T10:00:00.000Z",
@@ -77,6 +79,7 @@ export const sampleActivityLogEvents: ActivityLogEvent[] = [
     pagePath: "/pricing",
     pageUrl: "https://example.com/pricing",
     userAgent: "ClaudeBot/1.0",
+    ipHash: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
   },
   {
     receivedAt: "2026-05-20T09:00:00.000Z",
@@ -86,6 +89,7 @@ export const sampleActivityLogEvents: ActivityLogEvent[] = [
     pagePath: "/",
     pageUrl: "https://example.com/",
     userAgent: "Googlebot/2.1",
+    ipHash: null,
   },
 ];
 
@@ -108,6 +112,8 @@ export const sampleOverviewStats: OverviewStats = {
   uniquePages: 3,
   uniqueBots: 3,
   lastSeenAt: "2026-06-15T14:00:00.000Z",
+  topPlatform: "OpenAI",
+  topPage: "/blog",
 };
 
 export const samplePlatforms: PlatformBreakdownItem[] = [

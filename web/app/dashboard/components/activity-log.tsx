@@ -3,7 +3,15 @@
 import { useMemo, useState } from "react";
 import { flushSync } from "react-dom";
 import { useTranslations } from "next-intl";
-import { ChevronDown, ChevronRight, Download, Loader2 } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  ChevronDown,
+  ChevronRight,
+  Download,
+  Loader2,
+} from "lucide-react";
 import {
   activityLogCsvFilename,
   downloadCsv,
@@ -12,6 +20,8 @@ import {
 import type { ActivityLogEvent } from "@/lib/analytics/types";
 
 type PresetFilter = "today" | "week" | "month" | "year" | null;
+type SortKey = "receivedAt" | "ipHash";
+type SortDirection = "asc" | "desc";
 
 type MonthGroup = {
   key: string;
@@ -23,6 +33,29 @@ type ActivityLogProps = {
   domain: string;
   events: ActivityLogEvent[];
 };
+
+function SortIcon({
+  column,
+  sortKey,
+  sortDirection,
+}: {
+  column: SortKey;
+  sortKey: SortKey;
+  sortDirection: SortDirection;
+}) {
+  if (sortKey !== column) {
+    return <ArrowUpDown aria-hidden="true" className="h-3.5 w-3.5" />;
+  }
+  if (sortDirection === "asc") {
+    return <ArrowUp aria-hidden="true" className="h-3.5 w-3.5" />;
+  }
+  return <ArrowDown aria-hidden="true" className="h-3.5 w-3.5" />;
+}
+
+function formatIpHash(ipHash: string | null): string {
+  if (!ipHash) return "—";
+  return ipHash.length > 12 ? `${ipHash.slice(0, 12)}…` : ipHash;
+}
 
 function startOfDay(date: Date): Date {
   const next = new Date(date);
@@ -125,6 +158,8 @@ export function ActivityLog({ domain, events }: ActivityLogProps) {
   );
   const [expandedMonths, setExpandedMonths] = useState<Set<string>>(new Set());
   const [exporting, setExporting] = useState(false);
+  const [sortKey, setSortKey] = useState<SortKey>("receivedAt");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
 
   const botOptions = useMemo(
     () => distinctSorted(events.map((event) => event.botName)),
@@ -177,14 +212,44 @@ export function ActivityLog({ domain, events }: ActivityLogProps) {
       }
     }
 
+    function compareEvents(a: ActivityLogEvent, b: ActivityLogEvent): number {
+      let comparison = 0;
+      if (sortKey === "ipHash") {
+        comparison = (a.ipHash ?? "").localeCompare(b.ipHash ?? "");
+      } else {
+        comparison = a.receivedAt.localeCompare(b.receivedAt);
+      }
+      return sortDirection === "asc" ? comparison : -comparison;
+    }
+
     return Array.from(groups.entries())
       .sort(([a], [b]) => b.localeCompare(a))
       .map(([key, monthEvents]): MonthGroup => ({
         key,
         label: monthLabel(key),
-        events: monthEvents,
+        events: [...monthEvents].sort(compareEvents),
       }));
-  }, [filteredEvents]);
+  }, [filteredEvents, sortKey, sortDirection]);
+
+  function toggleSort(key: SortKey) {
+    if (sortKey === key) {
+      setSortDirection((current) => (current === "asc" ? "desc" : "asc"));
+      return;
+    }
+
+    setSortKey(key);
+    setSortDirection(key === "receivedAt" ? "desc" : "asc");
+  }
+
+  function sortAriaLabel(key: SortKey) {
+    const column =
+      key === "ipHash" ? t("sortByIpHash") : t("sortByDate");
+    const direction =
+      sortKey === key && sortDirection === "asc"
+        ? t("sortAscending")
+        : t("sortDescending");
+    return `${column}, ${direction}`;
+  }
 
   function clearFilters() {
     setPreset(null);
@@ -411,7 +476,7 @@ export function ActivityLog({ domain, events }: ActivityLogProps) {
 
                 {expanded && (
                   <div className="overflow-x-auto border-t border-zinc-100 dark:border-zinc-800">
-                    <table className="w-full min-w-[640px] text-left text-sm">
+                    <table className="w-full min-w-[720px] text-left text-sm">
                       <thead>
                         <tr className="border-b border-zinc-100 text-xs font-medium uppercase tracking-wide text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
                           <th className="px-6 py-3 font-medium">
@@ -421,7 +486,34 @@ export function ActivityLog({ domain, events }: ActivityLogProps) {
                             {t("logPage")}
                           </th>
                           <th className="px-6 py-3 font-medium">
-                            {t("logDate")}
+                            <button
+                              type="button"
+                              onClick={() => toggleSort("ipHash")}
+                              aria-label={sortAriaLabel("ipHash")}
+                              className="inline-flex items-center gap-1.5 transition hover:text-zinc-900 dark:hover:text-zinc-50"
+                            >
+                              {t("logIpHash")}
+                              <SortIcon
+                                column="ipHash"
+                                sortKey={sortKey}
+                                sortDirection={sortDirection}
+                              />
+                            </button>
+                          </th>
+                          <th className="px-6 py-3 font-medium">
+                            <button
+                              type="button"
+                              onClick={() => toggleSort("receivedAt")}
+                              aria-label={sortAriaLabel("receivedAt")}
+                              className="inline-flex items-center gap-1.5 transition hover:text-zinc-900 dark:hover:text-zinc-50"
+                            >
+                              {t("logDate")}
+                              <SortIcon
+                                column="receivedAt"
+                                sortKey={sortKey}
+                                sortDirection={sortDirection}
+                              />
+                            </button>
                           </th>
                           <th className="px-6 py-3 font-medium">
                             {t("logTime")}
@@ -441,6 +533,12 @@ export function ActivityLog({ domain, events }: ActivityLogProps) {
                             </td>
                             <td className="px-6 py-3 font-mono text-xs text-zinc-600 dark:text-zinc-300">
                               {event.pagePath}
+                            </td>
+                            <td
+                              className="px-6 py-3 font-mono text-xs text-zinc-600 dark:text-zinc-300"
+                              title={event.ipHash ?? undefined}
+                            >
+                              {formatIpHash(event.ipHash)}
                             </td>
                             <td className="px-6 py-3 text-zinc-600 dark:text-zinc-300">
                               {formatDate(event.receivedAt)}

@@ -6,6 +6,7 @@ export type CrawlerEventRow = {
   page_path: string | null;
   page_url: string;
   user_agent: string;
+  ip_hash: string | null;
 };
 
 export type OverviewStats = {
@@ -14,6 +15,8 @@ export type OverviewStats = {
   uniquePages: number;
   uniqueBots: number;
   lastSeenAt: string | null;
+  topPlatform: string | null;
+  topPage: string | null;
 };
 
 export type PlatformBreakdownItem = {
@@ -39,6 +42,7 @@ export type ActivityLogEvent = {
   pagePath: string;
   pageUrl: string;
   userAgent: string;
+  ipHash: string | null;
 };
 
 export type WeeklyActivityPoint = {

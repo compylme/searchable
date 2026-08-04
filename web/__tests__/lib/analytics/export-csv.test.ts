@@ -21,7 +21,7 @@ describe("toActivityLogCsv", () => {
     const lines = csv.split("\n");
 
     expect(lines[0]).toBe(
-      "timestamp,page_url,bot_name,platform,bot_type,user_agent",
+      "timestamp,page_url,bot_name,platform,bot_type,user_agent,ip_hash",
     );
     expect(lines).toHaveLength(4);
     expect(lines[1]).toContain("https://example.com/blog");
@@ -38,6 +38,7 @@ describe("toActivityLogCsv", () => {
         pagePath: "/blog",
         pageUrl: "https://example.com/blog",
         userAgent: "ua\nline",
+        ipHash: null,
       },
     ]);
 

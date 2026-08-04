@@ -1,7 +1,7 @@
 import type { ActivityLogEvent } from "./types";
 
 const CSV_HEADER =
-  "timestamp,page_url,bot_name,platform,bot_type,user_agent";
+  "timestamp,page_url,bot_name,platform,bot_type,user_agent,ip_hash";
 
 export function escapeCsvValue(value: string): string {
   if (/[",\n\r]/.test(value)) {
@@ -27,6 +27,7 @@ export function toActivityLogCsv(events: ActivityLogEvent[]): string {
       event.platform,
       event.botType,
       event.userAgent,
+      event.ipHash ?? "",
     ]
       .map(escapeCsvValue)
       .join(","),
