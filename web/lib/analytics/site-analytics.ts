@@ -1,16 +1,27 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type {
   ActivityLogEvent,
+  ActivityPeriod,
+  ActivityTrendDelta,
+  ActivityTrendPoint,
   CrawlerEventRow,
   OverviewStats,
+  PeriodActivityPoint,
   PlatformBreakdownItem,
   SiteAnalytics,
   TopPageItem,
-  WeeklyActivityPoint,
 } from "./types";
 
 const UNKNOWN = "unknown";
-const DEFAULT_WEEKLY_WINDOW = 12;
+const DEFAULT_TREND_WEEKS = 12;
+const DAY_MS = 24 * 60 * 60 * 1000;
+const WEEK_MS = 7 * DAY_MS;
+
+const ACTIVITY_PERIODS: { period: ActivityPeriod; ms: number }[] = [
+  { period: "24h", ms: DAY_MS },
+  { period: "7d", ms: WEEK_MS },
+  { period: "30d", ms: 30 * DAY_MS },
+];
 
 async function fetchSiteEvents(
   supabase: SupabaseClient,
@@ -19,7 +30,7 @@ async function fetchSiteEvents(
   const { data, error } = await supabase
     .from("crawler_events")
     .select(
-      "received_at, bot_name, platform, bot_type, page_path, page_url, user_agent",
+      "received_at, bot_name, platform, bot_type, page_path, page_url, user_agent, ip_hash",
     )
     .eq("site_id", siteId)
     .order("received_at", { ascending: false });
@@ -55,16 +66,41 @@ function laterTimestamp(
   return candidate > current ? candidate : current;
 }
 
+function topCountedValue(counts: Map<string, number>): string | null {
+  let topValue: string | null = null;
+  let topCount = -1;
+
+  for (const [value, count] of counts) {
+    if (
+      count > topCount ||
+      (count === topCount &&
+        (topValue === null || value.localeCompare(topValue) < 0))
+    ) {
+      topValue = value;
+      topCount = count;
+    }
+  }
+
+  return topValue;
+}
+
 export function computeOverviewStats(events: CrawlerEventRow[]): OverviewStats {
   const platforms = new Set<string>();
   const pages = new Set<string>();
   const bots = new Set<string>();
+  const platformCounts = new Map<string, number>();
+  const pageCounts = new Map<string, number>();
   let lastSeenAt: string | null = null;
 
   for (const event of events) {
-    platforms.add(normalizeNullable(event.platform));
-    pages.add(normalizePagePath(event.page_path, event.page_url));
+    const platform = normalizeNullable(event.platform);
+    const pagePath = normalizePagePath(event.page_path, event.page_url);
+
+    platforms.add(platform);
+    pages.add(pagePath);
     bots.add(normalizeNullable(event.bot_name));
+    platformCounts.set(platform, (platformCounts.get(platform) ?? 0) + 1);
+    pageCounts.set(pagePath, (pageCounts.get(pagePath) ?? 0) + 1);
     lastSeenAt = laterTimestamp(lastSeenAt, event.received_at);
   }
 
@@ -74,6 +110,8 @@ export function computeOverviewStats(events: CrawlerEventRow[]): OverviewStats {
     uniquePages: pages.size,
     uniqueBots: bots.size,
     lastSeenAt,
+    topPlatform: events.length === 0 ? null : topCountedValue(platformCounts),
+    topPage: events.length === 0 ? null : topCountedValue(pageCounts),
   };
 }
 
@@ -165,13 +203,54 @@ export function computeActivityLog(
       pagePath: normalizePagePath(event.page_path, event.page_url),
       pageUrl: event.page_url,
       userAgent: event.user_agent || UNKNOWN,
+      ipHash: event.ip_hash?.trim() || null,
     }))
     .sort((a, b) => b.receivedAt.localeCompare(a.receivedAt));
 }
 
+export function computePeriodActivity(
+  events: CrawlerEventRow[],
+  options?: { now?: Date },
+): PeriodActivityPoint[] {
+  if (events.length === 0) {
+    return [];
+  }
+
+  const nowMs = (options?.now ?? new Date()).getTime();
+  const counts: Record<ActivityPeriod, number> = {
+    "24h": 0,
+    "7d": 0,
+    "30d": 0,
+  };
+
+  for (const event of events) {
+    const receivedMs = new Date(event.received_at).getTime();
+    if (Number.isNaN(receivedMs)) {
+      continue;
+    }
+
+    const ageMs = nowMs - receivedMs;
+    if (ageMs < 0) {
+      continue;
+    }
+
+    for (const { period, ms } of ACTIVITY_PERIODS) {
+      if (ageMs <= ms) {
+        counts[period] += 1;
+      }
+    }
+  }
+
+  return ACTIVITY_PERIODS.map(({ period }) => ({
+    period,
+    crawlCount: counts[period],
+  }));
+}
+
 function startOfWeekMonday(date: Date): Date {
-  const next = new Date(date);
-  next.setUTCHours(0, 0, 0, 0);
+  const next = new Date(
+    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
+  );
   const day = next.getUTCDay();
   const diff = day === 0 ? 6 : day - 1;
   next.setUTCDate(next.getUTCDate() - diff);
@@ -193,29 +272,28 @@ function formatWeekLabel(date: Date): string {
   });
 }
 
-function addDays(date: Date, days: number): Date {
+function addUtcDays(date: Date, days: number): Date {
   const next = new Date(date);
   next.setUTCDate(next.getUTCDate() + days);
   return next;
 }
 
-export function computeWeeklyActivity(
+export function computeActivityTrend(
   events: CrawlerEventRow[],
   options?: { weeks?: number; now?: Date },
-): WeeklyActivityPoint[] {
+): ActivityTrendPoint[] {
   if (events.length === 0) {
     return [];
   }
 
-  const weeks = options?.weeks ?? DEFAULT_WEEKLY_WINDOW;
+  const weeks = options?.weeks ?? DEFAULT_TREND_WEEKS;
   const now = options?.now ?? new Date();
   const currentWeekStart = startOfWeekMonday(now);
-  const windowStart = addDays(currentWeekStart, -(weeks - 1) * 7);
+  const windowStart = addUtcDays(currentWeekStart, -(weeks - 1) * 7);
 
   const counts = new Map<string, number>();
   for (let i = 0; i < weeks; i += 1) {
-    const weekStart = addDays(windowStart, i * 7);
-    counts.set(toIsoDate(weekStart), 0);
+    counts.set(toIsoDate(addUtcDays(windowStart, i * 7)), 0);
   }
 
   for (const event of events) {
@@ -224,26 +302,73 @@ export function computeWeeklyActivity(
       continue;
     }
 
-    const weekStart = startOfWeekMonday(received);
-    const key = toIsoDate(weekStart);
+    const key = toIsoDate(startOfWeekMonday(received));
     if (!counts.has(key)) {
       continue;
     }
     counts.set(key, (counts.get(key) ?? 0) + 1);
   }
 
-  const points: WeeklyActivityPoint[] = [];
+  const points: ActivityTrendPoint[] = [];
   for (let i = 0; i < weeks; i += 1) {
-    const weekStart = addDays(windowStart, i * 7);
+    const weekStart = addUtcDays(windowStart, i * 7);
     const key = toIsoDate(weekStart);
     points.push({
-      weekStart: key,
+      date: key,
       label: formatWeekLabel(weekStart),
       crawlCount: counts.get(key) ?? 0,
     });
   }
 
   return points;
+}
+
+export function computeActivityTrendDelta(
+  events: CrawlerEventRow[],
+  options?: { now?: Date },
+): ActivityTrendDelta | null {
+  if (events.length === 0) {
+    return null;
+  }
+
+  const nowMs = (options?.now ?? new Date()).getTime();
+  let current = 0;
+  let previous = 0;
+
+  for (const event of events) {
+    const receivedMs = new Date(event.received_at).getTime();
+    if (Number.isNaN(receivedMs)) {
+      continue;
+    }
+
+    const ageMs = nowMs - receivedMs;
+    if (ageMs < 0) {
+      continue;
+    }
+
+    if (ageMs <= WEEK_MS) {
+      current += 1;
+    } else if (ageMs <= WEEK_MS * 2) {
+      previous += 1;
+    }
+  }
+
+  if (current === 0 && previous === 0) {
+    return { direction: "flat", percent: 0 };
+  }
+
+  if (previous === 0) {
+    return { direction: "up", percent: null };
+  }
+
+  const percent = Math.round(((current - previous) / previous) * 100);
+  if (percent > 0) {
+    return { direction: "up", percent };
+  }
+  if (percent < 0) {
+    return { direction: "down", percent: Math.abs(percent) };
+  }
+  return { direction: "flat", percent: 0 };
 }
 
 export async function getOverviewStats(
@@ -282,6 +407,8 @@ export async function getSiteAnalytics(
     platforms: computePlatformBreakdown(events),
     topPages: computeTopPages(events),
     activityLog: computeActivityLog(events),
-    weeklyActivity: computeWeeklyActivity(events),
+    periodActivity: computePeriodActivity(events),
+    activityTrend: computeActivityTrend(events),
+    activityTrendDelta: computeActivityTrendDelta(events),
   };
 }

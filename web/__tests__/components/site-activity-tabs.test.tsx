@@ -12,18 +12,26 @@ vi.mock("recharts", () => ({
   BarChart: ({ children }: { children?: React.ReactNode }) => (
     <div>{children}</div>
   ),
+  LineChart: ({ children }: { children?: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
   CartesianGrid: () => null,
   XAxis: () => null,
   YAxis: () => null,
   Tooltip: () => null,
   Bar: () => null,
+  Line: () => null,
 }));
 
 describe("SiteActivityTabs", () => {
   it("switches panels when tabs are clicked", async () => {
     const user = userEvent.setup();
     renderWithIntl(
-      <SiteActivityTabs domain="example.com" analytics={sampleSiteAnalytics} />,
+      <SiteActivityTabs
+        domain="example.com"
+        siteId="site-1"
+        analytics={sampleSiteAnalytics}
+      />,
     );
 
     await user.click(screen.getByRole("tab", { name: /Top pages/i }));

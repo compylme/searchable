@@ -10,6 +10,8 @@ describe("computeOverviewStats", () => {
       uniquePages: 3,
       uniqueBots: 3,
       lastSeenAt: "2026-06-15T14:00:00.000Z",
+      topPlatform: "OpenAI",
+      topPage: "/blog",
     });
   });
 });

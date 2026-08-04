@@ -1,11 +1,13 @@
 import type {
   ActivityLogEvent,
+  ActivityTrendDelta,
+  ActivityTrendPoint,
   CrawlerEventRow,
   OverviewStats,
+  PeriodActivityPoint,
   PlatformBreakdownItem,
   SiteAnalytics,
   TopPageItem,
-  WeeklyActivityPoint,
 } from "@/lib/analytics/types";
 import type { Site } from "@/lib/sites/types";
 
@@ -20,6 +22,7 @@ export function makeCrawlerEvent(
     page_path: "/blog",
     page_url: "https://example.com/blog",
     user_agent: "GPTBot/1.0",
+    ip_hash: null,
     ...overrides,
   };
 }
@@ -68,6 +71,7 @@ export const sampleActivityLogEvents: ActivityLogEvent[] = [
     pagePath: "/blog",
     pageUrl: "https://example.com/blog",
     userAgent: "GPTBot/1.0",
+    ipHash: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
   },
   {
     receivedAt: "2026-06-14T10:00:00.000Z",
@@ -77,6 +81,7 @@ export const sampleActivityLogEvents: ActivityLogEvent[] = [
     pagePath: "/pricing",
     pageUrl: "https://example.com/pricing",
     userAgent: "ClaudeBot/1.0",
+    ipHash: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
   },
   {
     receivedAt: "2026-05-20T09:00:00.000Z",
@@ -86,6 +91,7 @@ export const sampleActivityLogEvents: ActivityLogEvent[] = [
     pagePath: "/",
     pageUrl: "https://example.com/",
     userAgent: "Googlebot/2.1",
+    ipHash: null,
   },
 ];
 
@@ -108,6 +114,8 @@ export const sampleOverviewStats: OverviewStats = {
   uniquePages: 3,
   uniqueBots: 3,
   lastSeenAt: "2026-06-15T14:00:00.000Z",
+  topPlatform: "OpenAI",
+  topPage: "/blog",
 };
 
 export const samplePlatforms: PlatformBreakdownItem[] = [
@@ -148,25 +156,28 @@ export const sampleTopPages: TopPageItem[] = [
   },
 ];
 
-export const sampleWeeklyActivity: WeeklyActivityPoint[] = [
-  { weekStart: "2026-04-06", label: "Apr 6", crawlCount: 0 },
-  { weekStart: "2026-04-13", label: "Apr 13", crawlCount: 0 },
-  { weekStart: "2026-04-20", label: "Apr 20", crawlCount: 0 },
-  { weekStart: "2026-04-27", label: "Apr 27", crawlCount: 0 },
-  { weekStart: "2026-05-04", label: "May 4", crawlCount: 0 },
-  { weekStart: "2026-05-11", label: "May 11", crawlCount: 0 },
-  { weekStart: "2026-05-18", label: "May 18", crawlCount: 1 },
-  { weekStart: "2026-05-25", label: "May 25", crawlCount: 0 },
-  { weekStart: "2026-06-01", label: "Jun 1", crawlCount: 0 },
-  { weekStart: "2026-06-08", label: "Jun 8", crawlCount: 3 },
-  { weekStart: "2026-06-15", label: "Jun 15", crawlCount: 0 },
-  { weekStart: "2026-06-22", label: "Jun 22", crawlCount: 0 },
+export const samplePeriodActivity: PeriodActivityPoint[] = [
+  { period: "24h", crawlCount: 0 },
+  { period: "7d", crawlCount: 3 },
+  { period: "30d", crawlCount: 4 },
 ];
+
+export const sampleActivityTrend: ActivityTrendPoint[] = [
+  { date: "2026-06-08", label: "Jun 8", crawlCount: 3 },
+  { date: "2026-06-15", label: "Jun 15", crawlCount: 1 },
+];
+
+export const sampleActivityTrendDelta: ActivityTrendDelta = {
+  direction: "up",
+  percent: null,
+};
 
 export const sampleSiteAnalytics: SiteAnalytics = {
   overview: sampleOverviewStats,
   platforms: samplePlatforms,
   topPages: sampleTopPages,
   activityLog: sampleActivityLogEvents,
-  weeklyActivity: sampleWeeklyActivity,
+  periodActivity: samplePeriodActivity,
+  activityTrend: sampleActivityTrend,
+  activityTrendDelta: sampleActivityTrendDelta,
 };

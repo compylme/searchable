@@ -9,15 +9,17 @@ Track which AI bots (GPTBot, ClaudeBot, PerplexityBot, etc.) are crawling your w
 ```
 Your website                         Supabase
 ─────────────                        ────────
-<script src="…/tracker.js">  →       Edge Function (classify + store)
+<script> beacon IIFE </script>  →    Edge Function GET /track?sid=…
                                      Postgres (sites, crawler_events)
                                            ↑
 Vercel (Next.js dashboard)  ←──────────────┘
 ```
 
-- **tracker.js** -- lightweight script embedded on your site; fires a POST on page load directly to the Supabase edge function
-- **Edge Function (`track`)** -- validates the payload, classifies the bot by User-Agent, and inserts the event
+- **Beacon snippet** -- tiny inline script that loads the track endpoint as a `GET` with `?sid=`; the browser sends User-Agent and Referer
+- **Edge Function (`track`)** -- validates `sid` + Referer, classifies the bot by User-Agent, and inserts the event
 - **Dashboard** -- authenticated views showing activity per site, bot breakdowns, top pages, and weekly trends
+
+**Note:** Page URL comes from the `Referer` header. Privacy modes or some bots may omit it; those hits return `400` and are not stored.
 
 ## Local Development
 
@@ -25,6 +27,7 @@ Vercel (Next.js dashboard)  ←──────────────┘
 
 - Node.js 20+
 - [Supabase CLI](https://supabase.com/docs/guides/cli)
+- [Deno](https://deno.land/) (for edge function tests)
 
 ### Setup
 
@@ -57,6 +60,7 @@ This account includes sample sites and crawler events for local demos.
 
 ```bash
 # Against local Supabase (requires supabase start)
+cd web
 npm run crawl:bots
 
 # Against production
@@ -66,7 +70,15 @@ npm run crawl:bots -- --prod --site-id=<your-site-uuid>
 npm run crawl:bots -- --prod --site-id=<uuid> --bots=GPTBot,ClaudeBot
 ```
 
-This sends POSTs with spoofed User-Agent headers — no browser required.
+This sends GETs with spoofed User-Agent and Referer headers — no browser required.
+
+### Edge function tests
+
+```bash
+cd supabase
+deno task test:unit
+deno task test          # unit + integration + e2e (needs supabase start)
+```
 
 ## Production Deployment
 
@@ -108,15 +120,16 @@ vercel --prod
 Add this to any website you want to monitor:
 
 ```html
-<script
-  defer
-  src="https://ai-crawler-tracker.vercel.app/tracker.js"
-  data-site-id="YOUR_SITE_ID"
-  data-endpoint="https://trkaijnxdulrvtgcvddn.supabase.co/functions/v1/track"
-></script>
+<script>
+(function(s){
+  var d=document,g=d.createElement('script');
+  g.async=1;g.src='https://trkaijnxdulrvtgcvddn.supabase.co/functions/v1/track?sid='+s;
+  d.head.appendChild(g);
+})('YOUR_TRACKING_ID');
+</script>
 ```
 
-The site ID is shown in the dashboard after you register a site.
+The tracking ID is shown in the dashboard after you register a site.
 
 ## Scripts
 

@@ -1,6 +1,14 @@
 import { createClient } from "@supabase/supabase-js"
-import { corsHeaders, jsonResponse, RequestValidationError, requireEnvironmentVariable } from "./utils/index.ts"
-import { parsePayload, validatePayload } from "./validation/payload.ts"
+import {
+  corsHeaders,
+  getClientIp,
+  hashIp,
+  jsonResponse,
+  RequestValidationError,
+  requireEnvironmentVariable,
+  scriptResponse,
+} from "./utils/index.ts"
+import { parseBeaconRequest } from "./validation/payload.ts"
 import { classifyCrawler } from "./classification/index.ts"
 
 export async function handleRequest(request: Request): Promise<Response> {
@@ -11,21 +19,22 @@ export async function handleRequest(request: Request): Promise<Response> {
     });
   }
 
-  if (request.method !== "POST") {
+  if (request.method !== "GET") {
     return jsonResponse({ error: "Method not allowed" }, 405);
   }
 
   const requestId = crypto.randomUUID();
 
   try {
-    const payload = await parsePayload(request);
-
-    validatePayload(payload);
+    const payload = parseBeaconRequest(request);
 
     const userAgent = (request.headers.get("user-agent") ?? "unknown").slice(0, 500);
 
     const classification = classifyCrawler(userAgent);
     const pageUrl = new URL(payload.page_url);
+
+    const clientIp = getClientIp(request);
+    const ipHash = clientIp ? await hashIp(clientIp) : null;
 
     const crawlerEvent = {
       site_id: payload.site_id,
@@ -36,6 +45,7 @@ export async function handleRequest(request: Request): Promise<Response> {
       bot_name: classification.bot_name,
       platform: classification.platform,
       bot_type: classification.bot_type,
+      ip_hash: ipHash,
     };
 
     const supabase = createClient(
@@ -57,7 +67,7 @@ export async function handleRequest(request: Request): Promise<Response> {
       return jsonResponse({ error: "Unable to record event" }, 500);
     }
 
-    return jsonResponse({ accepted: true }, 202);
+    return scriptResponse(ipHash);
   } catch (error) {
     if (error instanceof RequestValidationError) {
       console.warn("Invalid tracking request", {

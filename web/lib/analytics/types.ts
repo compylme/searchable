@@ -6,6 +6,7 @@ export type CrawlerEventRow = {
   page_path: string | null;
   page_url: string;
   user_agent: string;
+  ip_hash: string | null;
 };
 
 export type OverviewStats = {
@@ -14,6 +15,8 @@ export type OverviewStats = {
   uniquePages: number;
   uniqueBots: number;
   lastSeenAt: string | null;
+  topPlatform: string | null;
+  topPage: string | null;
 };
 
 export type PlatformBreakdownItem = {
@@ -39,12 +42,25 @@ export type ActivityLogEvent = {
   pagePath: string;
   pageUrl: string;
   userAgent: string;
+  ipHash: string | null;
 };
 
-export type WeeklyActivityPoint = {
-  weekStart: string;
+export type ActivityPeriod = "24h" | "7d" | "30d";
+
+export type PeriodActivityPoint = {
+  period: ActivityPeriod;
+  crawlCount: number;
+};
+
+export type ActivityTrendPoint = {
+  date: string;
   label: string;
   crawlCount: number;
+};
+
+export type ActivityTrendDelta = {
+  direction: "up" | "down" | "flat";
+  percent: number | null;
 };
 
 export type SiteAnalytics = {
@@ -52,5 +68,7 @@ export type SiteAnalytics = {
   platforms: PlatformBreakdownItem[];
   topPages: TopPageItem[];
   activityLog: ActivityLogEvent[];
-  weeklyActivity: WeeklyActivityPoint[];
+  periodActivity: PeriodActivityPoint[];
+  activityTrend: ActivityTrendPoint[];
+  activityTrendDelta: ActivityTrendDelta | null;
 };

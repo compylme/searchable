@@ -21,7 +21,12 @@ vi.mock("recharts", () => {
           data-testid="bar-click"
           onClick={() =>
             onClick({
-              payload: samplePlatforms[0],
+              payload: {
+                platform: "OpenAI",
+                crawlCount: 2,
+                lastSeenAt: "2026-06-15T14:00:00.000Z",
+                bots: ["GPTBot"],
+              },
             })
           }
         >
@@ -58,9 +63,9 @@ describe("PlatformBreakdown", () => {
     await user.click(screen.getByTestId("bar-click"));
 
     expect(screen.getByRole("dialog")).toBeInTheDocument();
-    expect(screen.getByText("Bot activity")).toBeInTheDocument();
-    expect(screen.getAllByText("GPTBot").length).toBeGreaterThan(0);
-    expect(screen.getByText("OpenAI")).toBeInTheDocument();
+    expect(screen.getByText("Platform activity")).toBeInTheDocument();
+    expect(screen.getAllByText("OpenAI").length).toBeGreaterThan(0);
+    expect(screen.getByText("GPTBot")).toBeInTheDocument();
   });
 
   it("closes the modal when Escape is pressed", async () => {

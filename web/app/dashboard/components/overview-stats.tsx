@@ -2,7 +2,7 @@
 
 import type { ComponentType } from "react";
 import { useTranslations } from "next-intl";
-import { Activity, Bot, Clock, FileText, Layers } from "lucide-react";
+import { Activity, Bot, Clock, FileText, Globe, Layers, Link2 } from "lucide-react";
 import type { OverviewStats as OverviewStatsData } from "@/lib/analytics/types";
 
 type OverviewStatsProps = {
@@ -13,6 +13,7 @@ type StatCard = {
   label: string;
   value: string;
   icon: ComponentType<{ className?: string; "aria-hidden"?: boolean | "true" | "false" }>;
+  mono?: boolean;
 };
 
 export function OverviewStats({ stats }: OverviewStatsProps) {
@@ -49,6 +50,17 @@ export function OverviewStats({ stats }: OverviewStatsProps) {
       icon: Bot,
     },
     {
+      label: t("topPlatform"),
+      value: stats.topPlatform ?? t("emptyDate"),
+      icon: Globe,
+    },
+    {
+      label: t("topPage"),
+      value: stats.topPage ?? t("emptyDate"),
+      icon: Link2,
+      mono: true,
+    },
+    {
       label: t("lastSeen"),
       value: stats.lastSeenAt
         ? new Date(stats.lastSeenAt).toLocaleString()
@@ -70,7 +82,14 @@ export function OverviewStats({ stats }: OverviewStatsProps) {
               <Icon aria-hidden="true" className="h-3.5 w-3.5 text-brand" />
               {card.label}
             </p>
-            <p className="mt-2 text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+            <p
+              className={`mt-2 font-semibold tracking-tight text-zinc-900 dark:text-zinc-50 ${
+                card.mono
+                  ? "truncate font-mono text-lg"
+                  : "text-2xl"
+              }`}
+              title={card.mono ? card.value : undefined}
+            >
               {card.value}
             </p>
           </div>

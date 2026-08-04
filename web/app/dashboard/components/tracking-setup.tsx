@@ -3,13 +3,9 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { ChevronDown, ChevronRight, CircleHelp } from "lucide-react";
+import { buildTrackingSnippet } from "@/lib/tracking/snippet";
 
-const SNIPPET = `<script
-  defer
-  src="https://ai-crawler-tracker.vercel.app/tracker.js"
-  data-site-id="YOUR_TRACKING_ID"
-  data-endpoint="https://trkaijnxdulrvtgcvddn.supabase.co/functions/v1/track"
-></script>`;
+const SNIPPET = buildTrackingSnippet("YOUR_TRACKING_ID");
 
 export function TrackingSetup() {
   const t = useTranslations("TrackingSetup");

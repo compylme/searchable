@@ -7,18 +7,22 @@ import {
   Layers,
   LayoutDashboard,
   ScrollText,
+  Settings,
 } from "lucide-react";
 import type { SiteAnalytics } from "@/lib/analytics/types";
 import { ActivityLog } from "./activity-log";
+import { ActivityTrendChart } from "./activity-trend-chart";
 import { OverviewStats } from "./overview-stats";
+import { PeriodActivityChart } from "./period-activity-chart";
 import { PlatformBreakdown } from "./platform-breakdown";
+import { SiteSettings } from "./site-settings";
 import { TopPagesTable } from "./top-pages-table";
-import { WeeklyActivityChart } from "./weekly-activity-chart";
 
-type TabId = "overview" | "platforms" | "topPages" | "activityLog";
+type TabId = "overview" | "platforms" | "topPages" | "activityLog" | "settings";
 
 type SiteActivityTabsProps = {
   domain: string;
+  siteId: string;
   analytics: SiteAnalytics;
 };
 
@@ -30,6 +34,7 @@ const TAB_ICONS: Record<
   platforms: Layers,
   topPages: FileText,
   activityLog: ScrollText,
+  settings: Settings,
 };
 
 function tabClassName(selected: boolean): string {
@@ -40,6 +45,7 @@ function tabClassName(selected: boolean): string {
 
 export function SiteActivityTabs({
   domain,
+  siteId,
   analytics,
 }: SiteActivityTabsProps) {
   const t = useTranslations("SiteActivity");
@@ -50,6 +56,7 @@ export function SiteActivityTabs({
     { id: "platforms", label: t("tabPlatforms") },
     { id: "topPages", label: t("tabTopPages") },
     { id: "activityLog", label: t("tabActivityLog") },
+    { id: "settings", label: t("tabSettings") },
   ];
 
   return (
@@ -90,8 +97,14 @@ export function SiteActivityTabs({
           {activeTab === "overview" && (
             <div className="space-y-6">
               <OverviewStats stats={analytics.overview} />
-              {analytics.weeklyActivity.length > 0 && (
-                <WeeklyActivityChart data={analytics.weeklyActivity} />
+              {analytics.periodActivity.length > 0 && (
+                <PeriodActivityChart data={analytics.periodActivity} />
+              )}
+              {analytics.activityTrend.length > 0 && (
+                <ActivityTrendChart
+                  data={analytics.activityTrend}
+                  delta={analytics.activityTrendDelta}
+                />
               )}
             </div>
           )}
@@ -127,6 +140,21 @@ export function SiteActivityTabs({
         >
           {activeTab === "activityLog" && (
             <ActivityLog domain={domain} events={analytics.activityLog} />
+          )}
+        </div>
+
+        <div
+          role="tabpanel"
+          id="site-panel-settings"
+          aria-labelledby="site-tab-settings"
+          hidden={activeTab !== "settings"}
+        >
+          {activeTab === "settings" && (
+            <SiteSettings
+              siteId={siteId}
+              domain={domain}
+              events={analytics.activityLog}
+            />
           )}
         </div>
       </div>

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useCallback, useState, type SubmitEvent } from "react";
 import { Check, Copy, Plus } from "lucide-react";
-import { createSite } from "@/lib/sites/sites";
+import { createSite, normalizeDomain } from "@/lib/sites/sites";
 import type { Site } from "@/lib/sites/types";
 import { createClient } from "@/lib/supabase/client";
 
@@ -36,14 +36,14 @@ export function SitesList({ initialSites, userId }: SitesListProps) {
     event.preventDefault();
     setError(null);
 
-    const trimmed = domain.trim().toLowerCase();
-    if (!trimmed) {
-      setError(t("enterDomain"));
+    const normalized = normalizeDomain(domain);
+    if (!normalized) {
+      setError(t("invalidDomain"));
       return;
     }
 
     setSaving(true);
-    const result = await createSite(createClient(), userId, trimmed);
+    const result = await createSite(createClient(), userId, normalized);
     setSaving(false);
 
     if (result.error) {
