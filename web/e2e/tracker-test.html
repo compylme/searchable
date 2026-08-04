@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tracker test page</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        max-width: 40rem;
+        margin: 3rem auto;
+        padding: 0 1.5rem;
+        line-height: 1.5;
+        color: #1c1917;
+      }
+      code {
+        font-size: 0.9em;
+        background: #f5f5f4;
+        padding: 0.1em 0.35em;
+        border-radius: 0.25rem;
+      }
+      ol {
+        padding-left: 1.25rem;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Tracker test page</h1>
+    <p>
+      On load this page fires the Searchable GET beacon. Spoof the User-Agent in
+      DevTools → Command Menu → “Show Network conditions”, then reload.
+    </p>
+    <ol>
+      <li>
+        Replace <code>YOUR_TRACKING_ID</code> below with a real site ID from the
+        dashboard.
+      </li>
+      <li>
+        From <code>web/</code>, serve over HTTP (not <code>file://</code>):
+        <br />
+        <code>npx serve .</code> then open
+        <code>http://localhost:3000/e2e/tracker-test.html</code>
+      </li>
+      <li>Spoof UA (e.g. GPTBot) and reload. Check the dashboard for the event.</li>
+    </ol>
+    <p>
+      Example GPTBot UA:
+      <br />
+      <code
+        >Mozilla/5.0 (compatible; GPTBot/1.0; +https://openai.com/gptbot)</code
+      >
+    </p>
+
+    <!-- Local Supabase. For prod, swap the g.src host below. -->
+    <script>
+      (function (s) {
+        var d = document,
+          g = d.createElement("script");
+        g.async = 1;
+        g.src = "https://trkaijnxdulrvtgcvddn.supabase.co/functions/v1/track?sid=" + s;
+        d.head.appendChild(g);
+      })("5ab2d8cb-38be-4182-9ea2-b202c706afce");
+    </script>
+
+    <!--
+      Production example:
+      <script>
+      (function(s){
+        var d=document,g=d.createElement('script');
+        g.async=1;g.src='https://trkaijnxdulrvtgcvddn.supabase.co/functions/v1/track?sid='+s;
+        d.head.appendChild(g);
+      })('YOUR_TRACKING_ID');
+      </script>
+    -->
+  </body>
+</html>

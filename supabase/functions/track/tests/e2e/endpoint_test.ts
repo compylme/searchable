@@ -1,7 +1,7 @@
 import { assertEquals, assertExists } from "@std/assert";
-import { buildPayload } from "../helpers/factories.ts";
 import {
   KNOWN_BOT_UA,
+  TEST_PAGE_URL,
   TRACK_ENDPOINT,
 } from "../helpers/fixtures.ts";
 import {
@@ -37,12 +37,12 @@ Deno.test({
       assertEquals(response.headers.get("Access-Control-Allow-Origin"), "*");
       assertEquals(
         response.headers.get("Access-Control-Allow-Methods"),
-        "POST, OPTIONS",
+        "GET, OPTIONS",
       );
     });
 
-    await t.step("GET returns 405 Method not allowed", async () => {
-      const response = await fetch(TRACK_ENDPOINT, { method: "GET" });
+    await t.step("POST returns 405 Method not allowed", async () => {
+      const response = await fetch(TRACK_ENDPOINT, { method: "POST" });
       const body = await response.json();
 
       assertEquals(response.status, 405);
@@ -51,29 +51,34 @@ Deno.test({
     });
 
     await t.step(
-      "POST with valid payload returns 202 and persists event",
+      "GET with sid and Referer returns 200 JS and persists event",
       async () => {
         await clearCrawlerEvents();
 
-        const payload = buildPayload(seedData.siteId);
-        const response = await fetch(TRACK_ENDPOINT, {
-          method: "POST",
+        const url = `${TRACK_ENDPOINT}?sid=${encodeURIComponent(seedData.siteId)}`;
+        const response = await fetch(url, {
+          method: "GET",
           headers: {
-            "content-type": "application/json",
             "user-agent": KNOWN_BOT_UA,
+            referer: TEST_PAGE_URL,
           },
-          body: JSON.stringify(payload),
         });
-        const body = await response.json();
+        const body = await response.text();
 
-        assertEquals(response.status, 202);
-        assertEquals(body, { accepted: true });
-        assertEquals(response.headers.get("Content-Type"), "application/json");
+        assertEquals(response.status, 200);
+        assertEquals(
+          response.headers.get("Content-Type")?.startsWith(
+            "application/javascript",
+          ),
+          true,
+        );
+        assertEquals(body, "void 0;");
 
         const event = await getLatestCrawlerEvent(seedData.siteId);
         assertExists(event);
         assertEquals(event.bot_name, "GPTBot");
         assertEquals(event.site_id, seedData.siteId);
+        assertEquals(event.page_url, TEST_PAGE_URL);
       },
     );
 

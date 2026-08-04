@@ -1,5 +1,5 @@
 /**
- * Simulate AI bot crawls by POSTing tracking events with spoofed User-Agents.
+ * Simulate AI bot crawls by GETting the track beacon with spoofed User-Agents.
  *
  * Usage:
  *   npm run crawl:bots
@@ -52,19 +52,15 @@ function parseArgs(argv) {
 }
 
 async function sendEvent(endpoint, siteId, userAgent, pagePath) {
-  const payload = {
-    site_id: siteId,
-    page_url: `https://example.com${pagePath}`,
-    timestamp: new Date().toISOString(),
-  };
+  const url = `${endpoint}?sid=${encodeURIComponent(siteId)}`;
+  const referer = `https://example.com${pagePath}`;
 
-  const response = await fetch(endpoint, {
-    method: "POST",
+  const response = await fetch(url, {
+    method: "GET",
     headers: {
-      "Content-Type": "application/json",
       "User-Agent": userAgent,
+      Referer: referer,
     },
-    body: JSON.stringify(payload),
   });
 
   return response;

@@ -1,7 +1,6 @@
 export type TrackingPayload = {
   site_id: string;
   page_url: string;
-  timestamp?: string;
 };
 
 export type BotType = "training" | "search" | "assistant" | "dataset" | "unknown";

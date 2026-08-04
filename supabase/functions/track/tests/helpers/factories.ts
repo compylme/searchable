@@ -1,31 +1,32 @@
-import type { TrackingPayload } from "../../types/index.ts";
 import { KNOWN_BOT_UA, TEST_PAGE_URL } from "./fixtures.ts";
 
-export function buildPayload(
+type BeaconOptions = {
+  pageUrl?: string | null;
+  userAgent?: string | null;
+  sid?: string | null;
+  method?: string;
+  headers?: HeadersInit;
+};
+
+/** Build a GET beacon request: /track?sid=… with Referer + User-Agent. */
+export function buildBeaconRequest(
   siteId: string,
-  overrides: Partial<TrackingPayload> = {},
-): TrackingPayload {
-  return {
-    site_id: siteId,
-    page_url: TEST_PAGE_URL,
-    ...overrides,
-  };
-}
-
-export function buildRequest(
-  body: unknown,
-  options: {
-    method?: string;
-    headers?: HeadersInit;
-    userAgent?: string | null;
-  } = {},
+  options: BeaconOptions = {},
 ): Request {
-  const { method = "POST", headers = {}, userAgent = KNOWN_BOT_UA } = options;
+  const {
+    pageUrl = TEST_PAGE_URL,
+    userAgent = KNOWN_BOT_UA,
+    sid = siteId,
+    method = "GET",
+    headers = {},
+  } = options;
 
-  const requestHeaders = new Headers({
-    "content-type": "application/json",
-    ...headers,
-  });
+  const url = new URL("http://localhost/track");
+  if (sid !== null) {
+    url.searchParams.set("sid", sid);
+  }
+
+  const requestHeaders = new Headers(headers);
 
   if (userAgent === null) {
     requestHeaders.delete("user-agent");
@@ -33,13 +34,14 @@ export function buildRequest(
     requestHeaders.set("user-agent", userAgent);
   }
 
-  return new Request("http://localhost/track", {
+  if (pageUrl === null) {
+    requestHeaders.delete("referer");
+  } else {
+    requestHeaders.set("referer", pageUrl);
+  }
+
+  return new Request(url, {
     method,
     headers: requestHeaders,
-    body: method === "GET" || method === "OPTIONS"
-      ? undefined
-      : typeof body === "string"
-      ? body
-      : JSON.stringify(body),
   });
 }

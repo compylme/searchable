@@ -1,37 +1,35 @@
 import type { TrackingPayload } from "../types/index.ts"
 import { RequestValidationError } from "../utils/index.ts"
 
-export async function parsePayload(request: Request): Promise<TrackingPayload> {
-  try {
-    return await request.json();
-  } catch {
-    throw new RequestValidationError("Request body must be valid JSON")
-  }
-}
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-export function validatePayload(
-  payload: TrackingPayload,
-): asserts payload is TrackingPayload {
-  if (!payload || typeof payload !== "object") {
-    throw new RequestValidationError("Invalid request body")
+export function parseBeaconRequest(request: Request): TrackingPayload {
+  const url = new URL(request.url);
+  const sid = url.searchParams.get("sid");
+
+  if (!sid) {
+    throw new RequestValidationError("sid is required");
   }
 
-  if (!payload.site_id || typeof payload.site_id !== "string") {
-    throw new RequestValidationError("site_id is required");
+  if (!UUID_PATTERN.test(sid)) {
+    throw new RequestValidationError("sid must be a valid UUID");
   }
 
-  const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  if (!uuidPattern.test(payload.site_id)) {
-    throw new RequestValidationError("site_id must be a valid UUID");
-  }
+  const referer = request.headers.get("referer");
 
-  if (!payload.page_url || typeof payload.page_url !== "string") {
-    throw new RequestValidationError("page_url is required");
+  if (!referer) {
+    throw new RequestValidationError("Referer is required");
   }
 
   try {
-    new URL(payload.page_url);
+    new URL(referer);
   } catch {
-    throw new RequestValidationError("page_url must be a valid URL")
+    throw new RequestValidationError("Referer must be a valid URL");
   }
+
+  return {
+    site_id: sid,
+    page_url: referer,
+  };
 }

@@ -1,70 +1,62 @@
-import { assertEquals, assertRejects, assertThrows } from "@std/assert";
-import { parsePayload, validatePayload } from "../../validation/payload.ts";
+import { assertEquals, assertThrows } from "@std/assert";
+import { parseBeaconRequest } from "../../validation/payload.ts";
 import { RequestValidationError } from "../../utils/index.ts";
-import { INVALID_PAYLOADS, PLACEHOLDER_SITE_ID } from "../helpers/fixtures.ts";
-import { buildRequest } from "../helpers/factories.ts";
+import { PLACEHOLDER_SITE_ID, TEST_PAGE_URL } from "../helpers/fixtures.ts";
+import { buildBeaconRequest } from "../helpers/factories.ts";
 
-Deno.test("parsePayload returns parsed JSON body", async () => {
-  const payload = {
-    site_id: PLACEHOLDER_SITE_ID,
-    page_url: "https://example.com",
-  };
-  const request = buildRequest(payload);
-
-  const result = await parsePayload(request);
-
-  assertEquals(result, payload);
-});
-
-Deno.test("parsePayload throws for invalid JSON", async () => {
-  const request = buildRequest("{ not-json", {
-    headers: { "content-type": "application/json" },
+Deno.test("parseBeaconRequest returns sid and Referer as payload", () => {
+  const request = buildBeaconRequest(PLACEHOLDER_SITE_ID, {
+    pageUrl: TEST_PAGE_URL,
   });
 
-  await assertRejects(
-    () => parsePayload(request),
-    RequestValidationError,
-    "Request body must be valid JSON",
-  );
-});
+  const result = parseBeaconRequest(request);
 
-Deno.test("validatePayload accepts a valid payload", () => {
-  const payload = {
+  assertEquals(result, {
     site_id: PLACEHOLDER_SITE_ID,
-    page_url: "https://example.com/path",
-  };
-
-  validatePayload(payload);
+    page_url: TEST_PAGE_URL,
+  });
 });
 
-Deno.test("validatePayload rejects missing site_id", () => {
+Deno.test("parseBeaconRequest rejects missing sid", () => {
+  const request = buildBeaconRequest(PLACEHOLDER_SITE_ID, { sid: null });
+
   assertThrows(
-    () => validatePayload(INVALID_PAYLOADS.missingSiteId as never),
+    () => parseBeaconRequest(request),
     RequestValidationError,
-    "site_id is required",
+    "sid is required",
   );
 });
 
-Deno.test("validatePayload rejects non-UUID site_id", () => {
+Deno.test("parseBeaconRequest rejects non-UUID sid", () => {
+  const request = buildBeaconRequest(PLACEHOLDER_SITE_ID, {
+    sid: "not-a-uuid",
+  });
+
   assertThrows(
-    () => validatePayload(INVALID_PAYLOADS.badUuid as never),
+    () => parseBeaconRequest(request),
     RequestValidationError,
-    "site_id must be a valid UUID",
+    "sid must be a valid UUID",
   );
 });
 
-Deno.test("validatePayload rejects missing page_url", () => {
+Deno.test("parseBeaconRequest rejects missing Referer", () => {
+  const request = buildBeaconRequest(PLACEHOLDER_SITE_ID, { pageUrl: null });
+
   assertThrows(
-    () => validatePayload(INVALID_PAYLOADS.missingUrl as never),
+    () => parseBeaconRequest(request),
     RequestValidationError,
-    "page_url is required",
+    "Referer is required",
   );
 });
 
-Deno.test("validatePayload rejects invalid page_url", () => {
+Deno.test("parseBeaconRequest rejects invalid Referer", () => {
+  const request = buildBeaconRequest(PLACEHOLDER_SITE_ID, {
+    pageUrl: "not a url",
+  });
+
   assertThrows(
-    () => validatePayload(INVALID_PAYLOADS.badUrl as never),
+    () => parseBeaconRequest(request),
     RequestValidationError,
-    "page_url must be a valid URL",
+    "Referer must be a valid URL",
   );
 });

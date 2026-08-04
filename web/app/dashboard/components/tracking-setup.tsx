@@ -4,12 +4,13 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { ChevronDown, ChevronRight, CircleHelp } from "lucide-react";
 
-const SNIPPET = `<script
-  defer
-  src="https://ai-crawler-tracker.vercel.app/tracker.js"
-  data-site-id="YOUR_TRACKING_ID"
-  data-endpoint="https://trkaijnxdulrvtgcvddn.supabase.co/functions/v1/track"
-></script>`;
+const SNIPPET = `<script>
+(function(s){
+  var d=document,g=d.createElement('script');
+  g.async=1;g.src='https://trkaijnxdulrvtgcvddn.supabase.co/functions/v1/track?sid='+s;
+  d.head.appendChild(g);
+})('YOUR_TRACKING_ID');
+</script>`;
 
 export function TrackingSetup() {
   const t = useTranslations("TrackingSetup");

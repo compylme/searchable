@@ -1,6 +1,12 @@
 import { createClient } from "@supabase/supabase-js"
-import { corsHeaders, jsonResponse, RequestValidationError, requireEnvironmentVariable } from "./utils/index.ts"
-import { parsePayload, validatePayload } from "./validation/payload.ts"
+import {
+  corsHeaders,
+  jsonResponse,
+  RequestValidationError,
+  requireEnvironmentVariable,
+  scriptResponse,
+} from "./utils/index.ts"
+import { parseBeaconRequest } from "./validation/payload.ts"
 import { classifyCrawler } from "./classification/index.ts"
 
 export async function handleRequest(request: Request): Promise<Response> {
@@ -11,16 +17,14 @@ export async function handleRequest(request: Request): Promise<Response> {
     });
   }
 
-  if (request.method !== "POST") {
+  if (request.method !== "GET") {
     return jsonResponse({ error: "Method not allowed" }, 405);
   }
 
   const requestId = crypto.randomUUID();
 
   try {
-    const payload = await parsePayload(request);
-
-    validatePayload(payload);
+    const payload = parseBeaconRequest(request);
 
     const userAgent = (request.headers.get("user-agent") ?? "unknown").slice(0, 500);
 
@@ -57,7 +61,7 @@ export async function handleRequest(request: Request): Promise<Response> {
       return jsonResponse({ error: "Unable to record event" }, 500);
     }
 
-    return jsonResponse({ accepted: true }, 202);
+    return scriptResponse();
   } catch (error) {
     if (error instanceof RequestValidationError) {
       console.warn("Invalid tracking request", {
