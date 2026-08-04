@@ -19,6 +19,5 @@
     mode: "cors",
     keepalive: true,
   }).catch(() => {
-    // Tracking must never break the host page.
   });
 })();
